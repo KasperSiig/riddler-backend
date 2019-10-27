@@ -1,14 +1,10 @@
 import { Module, OnModuleInit } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { FileModule, FileService } from './file';
-import { ParserModule } from './parser/parser.module';
-import { ParserService } from './parser/parser.service';
+import { FileModule } from './file';
+import { ParserModule } from './parser';
+import { PasswordModule } from './password';
 
 @Module({
-	imports: [FileModule, ParserModule],
-	controllers: [AppController],
-	providers: [AppService],
+	imports: [FileModule, ParserModule, PasswordModule],
 })
 export class AppModule implements OnModuleInit {
 	constructor() {}
