@@ -9,20 +9,27 @@ export class PasswordService {
 		return passwds.forEach(pass => this.execSingle(pass));
 	}
 
-	execSingle(passwd: string) {
+	async execSingle(passwd: string) {
 		switch (process.platform) {
 			case 'linux':
-				this.execLinux(passwd);
+				return this.execLinux(passwd);
 		}
 	}
 
-	execLinux(passwd: string) {
-		execPromise(
+	async execLinux(
+		passwd: string,
+		format = 'nt',
+		wordlist = '/opt/john/wordlist.txt',
+	) {
+		return await execPromise(
 			'echo ' +
 				passwd +
 				' | ' +
 				process.env.JOHN_EXECUTABLE +
-				' --format=nt /dev/stdin --wordlist=/opt/john/wordlist.txt',
-		).then(data => console.log(data));
+				' --format=' +
+				format +
+				' /dev/stdin --wordlist=' +
+				wordlist,
+		);
 	}
 }
