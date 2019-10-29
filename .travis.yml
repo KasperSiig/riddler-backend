@@ -7,13 +7,13 @@ services:
   - docker
 env:
   matrix:
-    - NODE_CONTAINER=12.13-stretch
+    - CONTAINER=ksiig/node-jtr
 before_install:
   - docker pull node:$NODE_CONTAINER
 install:
-  - docker run -v $(pwd):/app node:$NODE_CONTAINER bash -c "cd app && yarn install"
+  - docker run -v $(pwd):/app $CONTAINER bash -c "cd app && yarn install"
 script:
-  - docker run -v $(pwd):/app node:$NODE_CONTAINER bash -c "cd app && yarn build"
-  - docker run -v $(pwd):/app node:$NODE_CONTAINER bash -c "cd app && yarn lint"
-  - docker run -v $(pwd):/app node:$NODE_CONTAINER bash -c "cd app && yarn test"
+  - docker run -v $(pwd):/app $CONTAINER bash -c "cd app && yarn build"
+  - docker run -v $(pwd):/app $CONTAINER bash -c "cd app && yarn lint"
+  - docker run -v $(pwd):/app $CONTAINER bash -c "cd app && yarn test"
   - yarn codecov

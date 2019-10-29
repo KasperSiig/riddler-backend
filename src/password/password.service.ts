@@ -5,27 +5,26 @@ const execPromise = promisify(exec);
 
 @Injectable()
 export class PasswordService {
-	execMany(passwds: string[]) {
-		return passwds.forEach(pass => this.execSingle(pass));
+	execMany(
+		passwds: string[],
+		format = 'nt',
+		wordlist = '/opt/jtr/wordlist.txt',
+	) {
+		return Promise.all(
+			passwds.map(async pass => await this.execSingle(pass, format, wordlist)),
+		);
 	}
 
-	async execSingle(passwd: string) {
-		switch (process.platform) {
-			case 'linux':
-				return this.execLinux(passwd);
-		}
-	}
-
-	async execLinux(
+	execSingle(
 		passwd: string,
 		format = 'nt',
-		wordlist = '/opt/john/wordlist.txt',
+		wordlist = '/opt/jtr/wordlist.txt',
 	) {
-		return await execPromise(
+		return execPromise(
 			'echo ' +
 				passwd +
 				' | ' +
-				process.env.JOHN_EXECUTABLE +
+				process.env.JTR_EXECUTABLE +
 				' --format=' +
 				format +
 				' /dev/stdin --wordlist=' +

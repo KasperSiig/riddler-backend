@@ -19,10 +19,8 @@ describe('PasswordService', () => {
 		expect(spy).toHaveBeenCalled();
 	});
 
-	if (process.platform === 'linux') {
-		it('should exec a single ntlm hash', async () => {
-			const output = await passwordSvc.execSingle(ntlmHash);
-			expect(output.stdout.toString()).toContain('Loaded 1 password hash');
-		});
-	}
+	it('should exec a single ntlm hash', async () => {
+		const output = await passwordSvc.execSingle(ntlmHash);
+		expect(output.stdout.toString()).toContain('Loaded 1 password hash');
+	});
 });
