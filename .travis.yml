@@ -9,7 +9,7 @@ env:
   matrix:
     - CONTAINER=ksiig/node-jtr
 before_install:
-  - docker pull node:$NODE_CONTAINER
+  - docker pull $CONTAINER
 install:
   - docker run -v $(pwd):/app $CONTAINER bash -c "cd app && yarn install"
 script:
