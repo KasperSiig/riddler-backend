@@ -5,9 +5,30 @@ const execPromise = promisify(exec);
 
 @Injectable()
 export class PasswordService {
-	execMany(passwds: string[]) {
-		return passwds.forEach(pass => this.execSingle(pass));
+	execMany(
+		passwds: string[],
+		format = 'nt',
+		wordlist = '/opt/jtr/wordlist.txt',
+	) {
+		return Promise.all(
+			passwds.map(async pass => await this.execSingle(pass, format, wordlist)),
+		);
 	}
 
-	execSingle(passwd: string) {}
+	execSingle(
+		passwd: string,
+		format = 'nt',
+		wordlist = '/opt/jtr/wordlist.txt',
+	) {
+		return execPromise(
+			'echo ' +
+				passwd +
+				' | ' +
+				process.env.JTR_EXECUTABLE +
+				' --format=' +
+				format +
+				' /dev/stdin --wordlist=' +
+				wordlist,
+		);
+	}
 }

@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { FileModule } from './file';
 import { PasswordModule } from './password';
 
