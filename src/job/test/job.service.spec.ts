@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JobService } from '../job.service';
 import * as child_process from 'child_process';
+import { execFile } from 'child_process';
 import { job } from './helpers/objects';
 
 describe('JobService', () => {
@@ -26,5 +27,14 @@ describe('JobService', () => {
 
 		service.startNew(job);
 		expect(spy).toHaveBeenCalled();
+
+		spy.mockRestore();
+	});
+
+	it('should add process to store', () => {
+		jest.spyOn(child_process, 'spawn').mockImplementation(() => execFile('ls'));
+
+		service.startNew(job);
+		expect(service.jobs.length).toBe(1);
 	});
 });
