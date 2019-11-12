@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JobController } from '../job.controller';
 import { JobService } from '../job.service';
+import { job } from './helpers/objects';
 
 describe('Job Controller', () => {
 	let controller: JobController;
@@ -21,16 +22,9 @@ describe('Job Controller', () => {
 	});
 
 	it('should call service to start job', () => {
-		const job = { file: '../test.txt' };
-		const result = 'ok';
+		jest.spyOn(jobSvc, 'startNew');
 
-		jest.spyOn(jobSvc, 'startNew').mockImplementation(() => {
-			return result;
-		});
-
-		const response = controller.startNew(job);
-
+		controller.startNew(job);
 		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
-		expect(response).toBe(result);
 	});
 });

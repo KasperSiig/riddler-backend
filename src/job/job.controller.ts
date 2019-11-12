@@ -6,8 +6,13 @@ import { Job } from './models/Job';
 export class JobController {
 	constructor(private jobSvc: JobService) {}
 
+	/**
+	 * Starts a new job
+	 *
+	 * @param job Job to be started
+	 */
 	@Post('new')
-	startNew(@Body() job: Job): string {
-		return this.jobSvc.startNew(job);
+	startNew(@Body() job: Job): void {
+		this.jobSvc.startNew(job);
 	}
 }
