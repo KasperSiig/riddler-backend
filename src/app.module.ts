@@ -1,8 +1,7 @@
 import { Module } from '@nestjs/common';
-import { FileModule } from './file';
-import { PasswordModule } from './password';
+import { JobModule } from './job';
 
 @Module({
-	imports: [FileModule, PasswordModule],
+	imports: [JobModule],
 })
 export class AppModule {}
