@@ -5,11 +5,18 @@ import { copy as fsCopy, appendFile } from 'fs-extra';
 export class FileService {
 	/**
 	 * Copies a given file to a given destination
+	 * @param src Where to copy from
+	 * @param dest Where to copy to
 	 */
 	copy(src: string, dest: string): Promise<void> {
 		return fsCopy(src, dest);
 	}
 
+	/**
+	 *
+	 * @param dest Where to write to
+	 * @param data What to write
+	 */
 	write(dest: string, data: string): Promise<void> {
 		return appendFile(dest, data);
 	}
