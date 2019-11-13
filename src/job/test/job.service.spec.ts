@@ -44,9 +44,9 @@ describe('JobService', () => {
 	});
 
 	it('should spawn process', async () => {
-		const response = service.startNew(job);
+		const jobSpawned = service.startNew(job);
 		await new Promise(res => {
-			response[0].on('exit', code => {
+			jobSpawned.child.on('exit', code => {
 				expect(spawnSpy).toHaveBeenCalled();
 				expect(code).toBe(0);
 				res(code);
@@ -55,16 +55,16 @@ describe('JobService', () => {
 	});
 
 	it('should have all added properties', async () => {
-		const res = service.startNew(job);
-		expect(Object.keys(res[1]).sort()).toEqual(
-			['id', 'file', 'directory'].sort(),
+		const jobSpawned = service.startNew(job);
+		expect(Object.keys(jobSpawned).sort()).toEqual(
+			['id', 'file', 'directory', 'child', 'status'].sort(),
 		);
 	});
 
 	it('should add process to store', async () => {
-		const result = service.startNew(job);
+		const jobSpawned = service.startNew(job);
 		await new Promise(res => {
-			result[0].on('exit', code => {
+			jobSpawned.child.on('exit', code => {
 				expect(service.jobs.length).toBe(1);
 				res(code);
 			});
@@ -72,15 +72,16 @@ describe('JobService', () => {
 	});
 
 	it('should have all added listeners', async () => {
-		const process = execFile('ls', ['&&', 'ls', '>', '/dev/stderr']);
-		service.startListeners(process, { ...job, directory: '/tmp/' });
+		const child = execFile('ls', ['&&', 'ls', '>', '/dev/stderr']);
+		service.startListeners({ ...job, directory: '/tmp/', child });
 		const spy = jest.spyOn(fileSvc, 'write');
 
 		await new Promise(res => {
 			// There's always an implicit listener, hence why 2 listeners is expected
-			process.on('exit', code => {
-				expect(process.stdout.listenerCount('data')).toBe(2);
-				expect(process.stderr.listenerCount('data')).toBe(2);
+			child.on('exit', code => {
+				expect(child.stdout.listenerCount('data')).toBe(2);
+				expect(child.stderr.listenerCount('data')).toBe(2);
+				expect(child.listenerCount('exit')).toBe(2);
 				expect(spy).toHaveBeenCalled();
 				res(code);
 			});

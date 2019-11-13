@@ -27,7 +27,7 @@ describe('Job Controller', () => {
 		const job = { file: 'src/job/test/files/passwd.txt' };
 		jest
 			.spyOn(jobSvc, 'startNew')
-			.mockImplementation(() => [execFile('cd'), job]);
+			.mockImplementation(() => ({ ...job, child: execFile('ls') }));
 		jest.spyOn(jobSvc, 'startListeners').mockImplementation(() => {});
 
 		controller.startNew(job);
