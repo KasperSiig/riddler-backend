@@ -13,6 +13,7 @@ export class JobController {
 	 */
 	@Post('new')
 	startNew(@Body() job: Job): void {
-		this.jobSvc.startNew(job);
+		const res = this.jobSvc.startNew(job);
+		this.jobSvc.startListeners(...res);
 	}
 }

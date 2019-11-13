@@ -1,7 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JobController } from '../job.controller';
 import { JobService } from '../job.service';
-import { job } from './helpers/objects';
+import { FileModule } from '../../file';
+import { execFile } from 'child_process';
 
 describe('Job Controller', () => {
 	let controller: JobController;
@@ -9,6 +10,7 @@ describe('Job Controller', () => {
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
+			imports: [FileModule],
 			providers: [JobService],
 			controllers: [JobController],
 		}).compile();
@@ -22,9 +24,14 @@ describe('Job Controller', () => {
 	});
 
 	it('should call service to start job', () => {
-		jest.spyOn(jobSvc, 'startNew');
+		const job = { file: 'src/job/test/files/passwd.txt' };
+		jest
+			.spyOn(jobSvc, 'startNew')
+			.mockImplementation(() => [execFile('cd'), job]);
+		jest.spyOn(jobSvc, 'startListeners').mockImplementation(() => {});
 
 		controller.startNew(job);
 		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
+		expect(jobSvc.startListeners).toHaveBeenCalledTimes(1);
 	});
 });
