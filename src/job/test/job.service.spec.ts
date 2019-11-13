@@ -81,7 +81,7 @@ describe('JobService', () => {
 			process.on('exit', code => {
 				expect(process.stdout.listenerCount('data')).toBe(2);
 				expect(process.stderr.listenerCount('data')).toBe(2);
-				expect(spy).toHaveBeenCalledTimes(2);
+				expect(spy).toHaveBeenCalled();
 				res(code);
 			});
 		});

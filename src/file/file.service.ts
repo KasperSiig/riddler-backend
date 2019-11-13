@@ -10,7 +10,7 @@ export class FileService {
 		return fsCopy(src, dest);
 	}
 
-	write(dest: string, data: string) {
+	write(dest: string, data: string): Promise<void> {
 		return appendFile(dest, data);
 	}
 }
