@@ -1,5 +1,5 @@
 export * from './job.module';
 export * from './job.controller';
 export * from './job.service';
-export * from './models/Job';
-export * from './models/Status.enum';
+export * from './schemas/job.schema';
+export * from './enums/status.enum';

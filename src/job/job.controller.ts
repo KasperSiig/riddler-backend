@@ -1,6 +1,6 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { JobService } from './job.service';
-import { Job } from './models/Job';
+import { Job } from './interfaces/job.interface';
 
 @Controller('job')
 export class JobController {
