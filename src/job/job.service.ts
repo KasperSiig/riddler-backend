@@ -1,16 +1,21 @@
 import { Injectable } from '@nestjs/common';
 import { Job } from './interfaces/job.interface';
-import { spawn, ChildProcess } from 'child_process';
+import { spawn } from 'child_process';
 import { v4 as uuid } from 'uuid';
 import { FileService } from '../file';
 import { STATUS } from './enums/status.enum';
+import { Model, Query, model } from 'mongoose';
+import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class JobService {
 	// Contains all jobs
 	jobs: Job[] = [];
 
-	constructor(private fileSvc: FileService) {}
+	constructor(
+		private fileSvc: FileService,
+		@InjectModel('Job') public readonly model: Model<Job>,
+	) {}
 
 	/**
 	 * Starts a new job
@@ -33,7 +38,8 @@ export class JobService {
 
 		job.status = STATUS.STARTED;
 
-		this.jobs.push(job);
+		// this.jobs.push(job);
+		this.save(job);
 		return job;
 	}
 
@@ -53,6 +59,15 @@ export class JobService {
 
 		job.child.on('exit', () => {
 			job.status = STATUS.FINISHED;
+			this.save(job);
+		});
+	}
+
+	save(job: Job): Query<Job> {
+		return this.model.findOneAndUpdate({}, job, {
+			upsert: true,
+			strict: true,
+			new: true,
 		});
 	}
 }
