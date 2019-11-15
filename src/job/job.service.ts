@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { Job } from './models/Job';
+import { Job } from './interfaces/job.interface';
 import { spawn, ChildProcess } from 'child_process';
 import { v4 as uuid } from 'uuid';
 import { FileService } from '../file';
-import { STATUS } from './models/Status.enum';
+import { STATUS } from './enums/status.enum';
 
 @Injectable()
 export class JobService {
