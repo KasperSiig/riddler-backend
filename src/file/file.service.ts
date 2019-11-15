@@ -1,9 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { readFileSync as readFileFS } from 'fs-extra';
+import { copy as fsCopy, appendFile } from 'fs-extra';
 
 @Injectable()
 export class FileService {
-	readFile(file: string): string {
-		return readFileFS(file).toString();
+	/**
+	 * Copies a given file to a given destination
+	 * @param src Where to copy from
+	 * @param dest Where to copy to
+	 */
+	copy(src: string, dest: string): Promise<void> {
+		return fsCopy(src, dest);
+	}
+
+	/**
+	 *
+	 * @param dest Where to write to
+	 * @param data What to write
+	 */
+	write(dest: string, data: string): Promise<void> {
+		return appendFile(dest, data);
 	}
 }

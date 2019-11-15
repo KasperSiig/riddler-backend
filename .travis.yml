@@ -3,17 +3,12 @@ language: node_js
 node_js:
   - --lts
 cache: skip
-services:
-  - docker
-env:
-  matrix:
-    - CONTAINER=ksiig/node-jtr
 before_install:
-  - docker pull $CONTAINER
+  - npm i -g yarn
 install:
-  - docker run -v $(pwd):/app $CONTAINER bash -c "cd app && yarn install"
+  - yarn install
 script:
-  - docker run -v $(pwd):/app $CONTAINER bash -c "cd app && yarn build"
-  - docker run -v $(pwd):/app $CONTAINER bash -c "cd app && yarn lint"
-  - docker run -v $(pwd):/app $CONTAINER bash -c "cd app && yarn test"
+  - yarn build
+  - yarn lint
+  - yarn test
   - yarn codecov
