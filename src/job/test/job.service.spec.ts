@@ -5,6 +5,7 @@ import { spawn, execFile } from 'child_process';
 import { FileModule, FileService } from '../../file';
 import { MongooseModule } from '@nestjs/mongoose';
 import { JobSchema } from '../schemas/job.schema';
+import { Types } from 'mongoose';
 
 describe('JobService', () => {
 	let service: JobService;
@@ -55,38 +56,25 @@ describe('JobService', () => {
 		expect(service).toBeDefined();
 	});
 
-	it('should spawn process', async () => {
-		const jobSpawned = service.startNew(job);
-		await new Promise(res => {
-			jobSpawned.child.on('exit', code => {
-				expect(spawnSpy).toHaveBeenCalled();
-				expect(code).toBe(0);
-				res(code);
-			});
+	it('should spawn process', async done => {
+		const child = await service.startNew(job);
+		child.on('exit', () => {
+			expect(spawnSpy).toHaveBeenCalled();
+			done();
 		});
 	});
 
-	it('should have all added properties', async () => {
-		const jobSpawned = service.startNew(job);
-		expect(Object.keys(jobSpawned).sort()).toEqual(
-			['id', 'file', 'directory', 'child', 'status'].sort(),
-		);
-	});
-
-	it('should have all added listeners', async () => {
+	it('should have all added listeners', async done => {
 		const child = execFile('ls', ['&&', 'ls', '>', '/dev/stderr']);
-		service.startListeners({ ...job, directory: '/tmp/', child });
-		const spy = jest.spyOn(fileSvc, 'write');
+		service.startListeners(job, child);
+		jest.spyOn(fileSvc, 'write');
 
-		await new Promise(res => {
-			// There's always an implicit listener, hence why 2 listeners is expected
-			child.on('exit', code => {
-				expect(child.stdout.listenerCount('data')).toBe(2);
-				expect(child.stderr.listenerCount('data')).toBe(2);
-				expect(child.listenerCount('exit')).toBe(2);
-				// expect(spy).toHaveBeenCalled();
-				res(code);
-			});
+		// There's always an implicit listener, hence why 2 listeners is expected
+		child.on('exit', () => {
+			expect(child.stdout.listenerCount('data')).toBe(2);
+			expect(child.stderr.listenerCount('data')).toBe(2);
+			expect(child.listenerCount('exit')).toBe(2);
+			done();
 		});
 	});
 });

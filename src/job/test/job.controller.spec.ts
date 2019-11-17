@@ -6,6 +6,7 @@ import { Job } from '../../job';
 import { JobController } from '../job.controller';
 import { JobService } from '../job.service';
 import { JobSchema } from './../schemas/job.schema';
+import { of } from 'rxjs';
 
 describe('Job Controller', () => {
 	let controller: JobController;
@@ -42,12 +43,11 @@ describe('Job Controller', () => {
 	it('should call service to start job', async () => {
 		let job = { file: 'src/job/test/files/passwd.txt' } as Job;
 		job = await jobSvc.save(job);
-		job.child = execFile('ls');
-		jest.spyOn(jobSvc, 'startNew').mockImplementation(() => job);
-		jest.spyOn(jobSvc, 'startListeners').mockImplementation(() => {});
+		jest
+			.spyOn(jobSvc, 'startNew')
+			.mockImplementation(() => of(execFile('ls')).toPromise());
 
 		controller.startNew(job);
 		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
-		expect(jobSvc.startListeners).toHaveBeenCalledTimes(1);
 	});
 });
