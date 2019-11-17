@@ -3,6 +3,8 @@ import { JobService } from '../job.service';
 import * as child_process from 'child_process';
 import { spawn, execFile } from 'child_process';
 import { FileModule, FileService } from '../../file';
+import { MongooseModule } from '@nestjs/mongoose';
+import { JobSchema } from '../schemas/job.schema';
 
 describe('JobService', () => {
 	let service: JobService;
@@ -22,7 +24,15 @@ describe('JobService', () => {
 
 	beforeEach(async () => {
 		const module: TestingModule = await Test.createTestingModule({
-			imports: [FileModule],
+			imports: [
+				FileModule,
+				MongooseModule.forRoot(process.env.MONGO_URL, {
+					useNewUrlParser: true,
+					useUnifiedTopology: true,
+					useFindAndModify: false,
+				}),
+				MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]),
+			],
 			providers: [JobService],
 		}).compile();
 
@@ -59,16 +69,6 @@ describe('JobService', () => {
 		expect(Object.keys(jobSpawned).sort()).toEqual(
 			['id', 'file', 'directory', 'child', 'status'].sort(),
 		);
-	});
-
-	it('should add process to store', async () => {
-		const jobSpawned = service.startNew(job);
-		await new Promise(res => {
-			jobSpawned.child.on('exit', code => {
-				expect(service.jobs.length).toBe(1);
-				res(code);
-			});
-		});
 	});
 
 	it('should have all added listeners', async () => {

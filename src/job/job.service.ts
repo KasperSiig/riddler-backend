@@ -4,14 +4,11 @@ import { spawn } from 'child_process';
 import { v4 as uuid } from 'uuid';
 import { FileService } from '../file';
 import { STATUS } from './enums/status.enum';
-import { Model, Query, model } from 'mongoose';
+import { Model, Query } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 
 @Injectable()
 export class JobService {
-	// Contains all jobs
-	jobs: Job[] = [];
-
 	constructor(
 		private fileSvc: FileService,
 		@InjectModel('Job') public readonly model: Model<Job>,
@@ -38,7 +35,6 @@ export class JobService {
 
 		job.status = STATUS.STARTED;
 
-		// this.jobs.push(job);
 		this.save(job);
 		return job;
 	}

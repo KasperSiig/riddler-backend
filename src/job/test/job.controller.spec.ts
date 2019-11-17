@@ -1,12 +1,11 @@
-import { JobSchema } from './../schemas/job.schema';
-import { Model, Document as mDocument } from 'mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { execFile } from 'child_process';
+import { FileModule } from '../../file';
+import { Job } from '../../job';
 import { JobController } from '../job.controller';
 import { JobService } from '../job.service';
-import { FileModule } from '../../file';
-import { execFile } from 'child_process';
-import { Job } from '../../job';
-import { getModelToken, MongooseModule } from '@nestjs/mongoose';
+import { JobSchema } from './../schemas/job.schema';
 
 describe('Job Controller', () => {
 	let controller: JobController;
