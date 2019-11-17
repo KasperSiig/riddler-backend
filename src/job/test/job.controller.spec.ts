@@ -42,7 +42,7 @@ describe('Job Controller', () => {
 
 	it('should call service to start job', async () => {
 		let job = { file: 'src/job/test/files/passwd.txt' } as Job;
-		job = await jobSvc.save(job);
+		job = await jobSvc.update(job);
 		jest
 			.spyOn(jobSvc, 'startNew')
 			.mockImplementation(() => of(execFile('ls')).toPromise());
