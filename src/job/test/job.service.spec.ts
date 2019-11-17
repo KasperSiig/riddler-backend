@@ -12,6 +12,7 @@ describe('JobService', () => {
 	let job: any;
 	let spawnSpy: jest.SpyInstance;
 	let envBak: string;
+	let module: TestingModule;
 
 	beforeAll(() => {
 		envBak = process.env.JTR_ROOT;
@@ -23,7 +24,7 @@ describe('JobService', () => {
 	});
 
 	beforeEach(async () => {
-		const module: TestingModule = await Test.createTestingModule({
+		module = await Test.createTestingModule({
 			imports: [
 				FileModule,
 				MongooseModule.forRoot(process.env.MONGO_URL, {
@@ -47,6 +48,7 @@ describe('JobService', () => {
 
 	afterEach(() => {
 		spawnSpy.mockRestore();
+		module.close();
 	});
 
 	it('should be defined', () => {

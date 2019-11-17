@@ -10,9 +10,10 @@ import { JobSchema } from './../schemas/job.schema';
 describe('Job Controller', () => {
 	let controller: JobController;
 	let jobSvc: JobService;
+	let module: TestingModule;
 
 	beforeEach(async () => {
-		const module: TestingModule = await Test.createTestingModule({
+		module = await Test.createTestingModule({
 			imports: [
 				FileModule,
 				MongooseModule.forRoot(process.env.MONGO_URL, {
@@ -28,6 +29,10 @@ describe('Job Controller', () => {
 
 		controller = module.get<JobController>(JobController);
 		jobSvc = module.get<JobService>(JobService);
+	});
+
+	afterEach(() => {
+		module.close();
 	});
 
 	it('should be defined', async () => {
