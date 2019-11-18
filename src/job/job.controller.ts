@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { JobService } from './job.service';
 import { Job } from './interfaces/job.interface';
 
@@ -19,5 +19,10 @@ export class JobController {
 	@Get('')
 	getJobs() {
 		return this.jobSvc.getJobs();
+	}
+
+	@Get(':id')
+	get(@Param('id') id: string) {
+		return this.jobSvc.getJob(id);
 	}
 }

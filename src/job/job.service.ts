@@ -88,4 +88,8 @@ export class JobService {
 	getJobs() {
 		return this.model.find({});
 	}
+
+	getJob(id: string) {
+		return this.model.findById(id);
+	}
 }
