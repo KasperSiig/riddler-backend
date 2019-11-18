@@ -7,6 +7,7 @@ import { JobController } from '../job.controller';
 import { JobService } from '../job.service';
 import { JobSchema } from './../schemas/job.schema';
 import { of } from 'rxjs';
+import { STATUS } from '../enums/status.enum';
 
 describe('Job Controller', () => {
 	let controller: JobController;
@@ -49,5 +50,12 @@ describe('Job Controller', () => {
 
 		controller.startNew(job);
 		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
+	});
+
+	it('should get all finished jobs', async () => {
+		let job = { file: 'src/job/test/files/passwd.txt' } as Job;
+		job = await jobSvc.update(job);
+
+		controller.getByStatus(STATUS.FINISHED);
 	});
 });
