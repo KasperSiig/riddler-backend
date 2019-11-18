@@ -51,12 +51,12 @@ describe('Job Controller', () => {
 		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
 	});
 
-
 	it('should call service to get details', () => {
-		const spy = jest.spyOn(jobSvc, 'getAll').mockImplementation(() => {});
+		const spy = jest.spyOn(jobSvc, 'getAll');
 
 		controller.getJobs();
 		expect(spy).toBeCalledTimes(1);
+	});
 
 	it('should get one job', async () => {
 		let job = { _id: '1', file: 'src/job/test/files/passwd.txt' } as Job;
@@ -68,6 +68,5 @@ describe('Job Controller', () => {
 
 		expect(rtn.toObject()).toEqual(job.toObject());
 		expect(spy).toHaveBeenCalledTimes(1);
-
 	});
 });
