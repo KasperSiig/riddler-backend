@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param } from '@nestjs/common';
 import { JobService } from './job.service';
 import { Job } from './interfaces/job.interface';
 
@@ -14,5 +14,22 @@ export class JobController {
 	@Post('new')
 	startNew(@Body() job: Job): void {
 		this.jobSvc.startNew(job);
+	}
+
+	/**
+	 * Gets all jobs
+	 */
+	@Get('')
+	getJobs() {
+		return this.jobSvc.getAll();
+	}
+
+	/**
+	 * Gets a job via Id
+	 * @param id
+	 */
+	@Get(':id')
+	get(@Param('id') id: string) {
+		return this.jobSvc.getJob(id);
 	}
 }

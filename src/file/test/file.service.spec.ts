@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FileService } from './file.service';
+import { FileService } from '../file.service';
 import * as fs from 'fs-extra';
 import { of } from 'rxjs';
 

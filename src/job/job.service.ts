@@ -84,4 +84,19 @@ export class JobService {
 		job.directory = process.env.JTR_ROOT + 'jobs/' + job._id + '/';
 		return this.model.create(job);
 	}
+
+	/**
+	 * Gets all jobs
+	 */
+	getAll() {
+		return this.model.find({});
+	}
+
+	/**
+	 * Gets jobs via Id
+	 * @param id ID to find job by
+	 */
+	getJob(id: string) {
+		return this.model.findById(id);
+	}
 }

@@ -50,4 +50,23 @@ describe('Job Controller', () => {
 		controller.startNew(job);
 		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
 	});
+
+	it('should call service to get details', () => {
+		const spy = jest.spyOn(jobSvc, 'getAll');
+
+		controller.getJobs();
+		expect(spy).toBeCalledTimes(1);
+	});
+
+	it('should get one job', async () => {
+		let job = { _id: '1', file: 'src/job/test/files/passwd.txt' } as Job;
+		job = await jobSvc.create(job);
+
+		const spy = jest.spyOn(jobSvc, 'getJob');
+
+		const rtn = await controller.get(job._id);
+
+		expect(rtn.toObject()).toEqual(job.toObject());
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
 });
