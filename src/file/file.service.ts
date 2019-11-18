@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { copy as fsCopy, appendFile } from 'fs-extra';
+import { appendFile, copy as fsCopy } from 'fs-extra';
 
 @Injectable()
 export class FileService {
