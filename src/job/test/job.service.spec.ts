@@ -5,6 +5,8 @@ import { execFile } from 'child_process';
 import { FileModule, FileService } from '../../file';
 import { JobService } from '../job.service';
 import { JobSchema } from '../schemas/job.schema';
+import { STATUS } from '../enums/status.enum';
+import { Job } from '../interfaces/job.interface';
 
 describe('JobService', () => {
 	let service: JobService;
@@ -82,5 +84,16 @@ describe('JobService', () => {
 		const jobRtn = await service.getJob(jobCreated._id);
 
 		expect(jobCreated.toObject()).toEqual(jobRtn.toObject());
+	});
+
+	it('should get all finished jobs', async () => {
+		let newJob = {
+			file: 'src/job/test/files/passwd.txt',
+			status: STATUS.FINISHED,
+		} as Job;
+		newJob = await service.create(newJob);
+
+		const jobRtn = await service.getByStatus(STATUS.FINISHED);
+		expect(jobRtn).toContainEqual(expect.objectContaining(newJob.toObject()));
 	});
 });

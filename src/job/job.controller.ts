@@ -1,8 +1,10 @@
-import { Controller, Post, Body, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
 import { JobService } from './job.service';
 import { Job } from './interfaces/job.interface';
+import { STATUS } from './enums/status.enum';
+import { DocumentQuery } from 'mongoose';
 
-@Controller('job')
+@Controller('jobs')
 export class JobController {
 	constructor(private jobSvc: JobService) {}
 
@@ -31,5 +33,15 @@ export class JobController {
 	@Get(':id')
 	get(@Param('id') id: string) {
 		return this.jobSvc.getJob(id);
+	}
+
+	/**
+	 * Finds job by a given status
+	 *
+	 * @param status Status to find Job by
+	 */
+	@Get('')
+	getByStatus(@Query('status') status: STATUS): DocumentQuery<Job[], Job, {}> {
+		return this.jobSvc.getByStatus(status);
 	}
 }
