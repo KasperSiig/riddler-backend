@@ -1,4 +1,4 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import { Controller, Post, Body, Get } from '@nestjs/common';
 import { JobService } from './job.service';
 import { Job } from './interfaces/job.interface';
 
@@ -14,5 +14,10 @@ export class JobController {
 	@Post('new')
 	startNew(@Body() job: Job): void {
 		this.jobSvc.startNew(job);
+	}
+
+	@Get('')
+	getJobs() {
+		return this.jobSvc.getJobs();
 	}
 }
