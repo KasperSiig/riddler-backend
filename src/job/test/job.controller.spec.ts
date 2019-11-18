@@ -13,7 +13,16 @@ describe('Job Controller', () => {
 	let controller: JobController;
 	let jobSvc: JobService;
 	let module: TestingModule;
+	let envBak: string;
 
+	beforeAll(() => {
+		envBak = process.env.JTR_ROOT;
+		process.env.JTR_ROOT = '/tmp/';
+	});
+
+	afterAll(() => {
+		process.env.JTR_ROOT = envBak;
+	});
 	beforeEach(async () => {
 		module = await Test.createTestingModule({
 			imports: [
@@ -52,12 +61,6 @@ describe('Job Controller', () => {
 		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
 	});
 
-	it('should get all finished jobs', async () => {
-		let job = { file: 'src/job/test/files/passwd.txt' } as Job;
-		job = await jobSvc.update(job);
-
-		controller.getByStatus(STATUS.FINISHED);
-	});
 	it('should call service to get details', () => {
 		const spy = jest.spyOn(jobSvc, 'getAll');
 
@@ -66,14 +69,27 @@ describe('Job Controller', () => {
 	});
 
 	it('should get one job', async () => {
-		let job = { _id: '1', file: 'src/job/test/files/passwd.txt' } as Job;
+		let job = { file: 'src/job/test/files/passwd.txt' } as Job;
 		job = await jobSvc.create(job);
 
 		const spy = jest.spyOn(jobSvc, 'getJob');
 
-		const rtn = await controller.get(job._id);
+		await controller.get(job._id);
 
-		expect(rtn.toObject()).toEqual(job.toObject());
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should get all finished jobs', async () => {
+		let job = {
+			file: 'src/job/test/files/passwd.txt',
+			status: STATUS.FINISHED,
+		} as Job;
+		job = await jobSvc.create(job);
+
+		const spy = jest.spyOn(jobSvc, 'getByStatus');
+
+		await controller.getByStatus(STATUS.FINISHED);
+
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 });

@@ -1,11 +1,10 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotImplementedException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ChildProcess, spawn } from 'child_process';
-import { Model, Query, Types } from 'mongoose';
+import { Model, Query, Types, DocumentQuery } from 'mongoose';
 import { FileService } from '../file';
 import { STATUS } from './enums/status.enum';
 import { Job } from './interfaces/job.interface';
-import { BehaviorSubject, Subject } from 'rxjs';
 
 @Injectable()
 export class JobService {
@@ -98,5 +97,14 @@ export class JobService {
 	 */
 	getJob(id: string) {
 		return this.model.findById(id);
+	}
+
+	/**
+	 * Finds job by a given status
+	 *
+	 * @param status Status to find Job by
+	 */
+	getByStatus(status: STATUS): DocumentQuery<Job[], Job, {}> {
+		return this.model.find({ status });
 	}
 }
