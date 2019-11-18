@@ -85,10 +85,17 @@ export class JobService {
 		return this.model.create(job);
 	}
 
+	/**
+	 * Gets all jobs
+	 */
 	getAll() {
 		return this.model.find({});
 	}
 
+	/**
+	 * Gets jobs via Id
+	 * @param id ID to find job by
+	 */
 	getJob(id: string) {
 		return this.model.findById(id);
 	}

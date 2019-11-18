@@ -16,11 +16,18 @@ export class JobController {
 		this.jobSvc.startNew(job);
 	}
 
+	/**
+	 * Gets all jobs
+	 */
 	@Get('')
 	getJobs() {
 		return this.jobSvc.getAll();
 	}
 
+	/**
+	 * Gets a job via Id
+	 * @param id
+	 */
 	@Get(':id')
 	get(@Param('id') id: string) {
 		return this.jobSvc.getJob(id);
