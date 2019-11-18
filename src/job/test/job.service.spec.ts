@@ -1,11 +1,10 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { JobService } from '../job.service';
-import * as child_process from 'child_process';
-import { spawn, execFile } from 'child_process';
-import { FileModule, FileService } from '../../file';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
+import * as child_process from 'child_process';
+import { execFile } from 'child_process';
+import { FileModule, FileService } from '../../file';
+import { JobService } from '../job.service';
 import { JobSchema } from '../schemas/job.schema';
-import { Types } from 'mongoose';
 
 describe('JobService', () => {
 	let service: JobService;
@@ -76,5 +75,12 @@ describe('JobService', () => {
 			expect(child.listenerCount('exit')).toBe(2);
 			done();
 		});
+	});
+
+	it('should get one job', async () => {
+		const jobCreated = await service.create(job);
+		const jobRtn = await service.getJob(jobCreated._id);
+
+		expect(jobCreated.toObject()).toEqual(jobRtn.toObject());
 	});
 });
