@@ -50,4 +50,11 @@ describe('Job Controller', () => {
 		controller.startNew(job);
 		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
 	});
+
+	it('should call service to get details', () => {
+		const spy = jest.spyOn(jobSvc, 'getAll').mockImplementation(() => {});
+
+		controller.getJobs();
+		expect(spy).toBeCalledTimes(1);
+	});
 });

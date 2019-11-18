@@ -18,6 +18,6 @@ export class JobController {
 
 	@Get('')
 	getJobs() {
-		return this.jobSvc.getJobs();
+		return this.jobSvc.getAll();
 	}
 }

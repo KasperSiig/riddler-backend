@@ -85,7 +85,7 @@ export class JobService {
 		return this.model.create(job);
 	}
 
-	getJobs() {
+	getAll() {
 		return this.model.find({});
 	}
 }
