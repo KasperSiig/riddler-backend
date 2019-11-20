@@ -1,13 +1,11 @@
 import { Document } from 'mongoose';
 import { STATUS } from '../enums/status.enum';
-import { ChildProcess } from 'child_process';
 
 export interface Job extends Document {
-	id?: string;
+	name: string;
 	file: string;
 	status?: STATUS;
 	format?: string;
 	wordlist?: string;
 	directory?: string;
-	child?: ChildProcess;
 }
