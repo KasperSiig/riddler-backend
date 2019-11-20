@@ -125,3 +125,5 @@ fabric.properties
 .idea/**/markdown-navigator/
 
 # End of https://www.gitignore.io/api/webstorm
+undefinedstdout.txt
+undefinedstderr.txt
