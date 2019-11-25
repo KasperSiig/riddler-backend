@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { appendFile, copy as fsCopy } from 'fs-extra';
+import { appendFile, copy as fsCopy, readFile } from 'fs-extra';
 
 @Injectable()
 export class FileService {
@@ -19,5 +19,9 @@ export class FileService {
 	 */
 	write(dest: string, data: string): Promise<void> {
 		return appendFile(dest, data);
+	}
+
+	read(src: string): Promise<Buffer> {
+		return readFile(src);
 	}
 }

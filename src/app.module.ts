@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { JobModule } from './job';
 import { FileModule } from './file';
 import { MongooseModule } from '@nestjs/mongoose';
+import { StatsModule } from './stats/stats.module';
 
 @Module({
 	imports: [
@@ -12,6 +13,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 			useFindAndModify: false,
 			useUnifiedTopology: true,
 		}),
+		StatsModule,
 	],
 })
 export class AppModule {}

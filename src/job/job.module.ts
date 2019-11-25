@@ -12,5 +12,6 @@ import { FileModule } from '../file';
 	],
 	controllers: [JobController],
 	providers: [JobService],
+	exports: [JobService],
 })
 export class JobModule {}
