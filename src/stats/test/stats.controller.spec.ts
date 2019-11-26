@@ -9,9 +9,10 @@ import { FileModule } from '../../file';
 describe('Stats Controller', () => {
 	let controller: StatsController;
 	let statsSvc: StatsService;
+	let module: TestingModule;
 
 	beforeEach(async () => {
-		const module: TestingModule = await Test.createTestingModule({
+		module = await Test.createTestingModule({
 			imports: [
 				FileModule,
 				JobModule,
@@ -28,6 +29,10 @@ describe('Stats Controller', () => {
 
 		controller = module.get<StatsController>(StatsController);
 		statsSvc = module.get<StatsService>(StatsService);
+	});
+
+	afterEach(() => {
+		module.close();
 	});
 
 	it('should be defined', () => {
