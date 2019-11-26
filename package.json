@@ -28,6 +28,8 @@
 		"@types/fs-extra": "^8.0.1",
 		"@types/mongoose": "^5.5.31",
 		"@types/uuid": "^3.4.6",
+		"class-transformer": "^0.2.3",
+		"class-validator": "^0.11.0",
 		"fs-extra": "^8.1.0",
 		"mongoose": "^5.7.11",
 		"reflect-metadata": "^0.1.13",

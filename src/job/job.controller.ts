@@ -1,8 +1,18 @@
-import { Controller, Post, Body, Get, Param, Query } from '@nestjs/common';
+import {
+	Controller,
+	Post,
+	Body,
+	Get,
+	Param,
+	Query,
+	HttpException,
+	HttpStatus,
+} from '@nestjs/common';
 import { JobService } from './job.service';
 import { Job } from './interfaces/job.interface';
 import { STATUS } from './enums/status.enum';
 import { DocumentQuery } from 'mongoose';
+import { JobDTO } from './dto/job.dto';
 
 @Controller('jobs')
 export class JobController {
@@ -14,8 +24,12 @@ export class JobController {
 	 * @param job Job to be started
 	 */
 	@Post('new')
-	startNew(@Body() job: Job): void {
-		this.jobSvc.startNew(job);
+	async startNew(@Body() job: JobDTO): Promise<void> {
+		try {
+			await this.jobSvc.startNew(job as Job);
+		} catch (error) {
+			throw new HttpException('', HttpStatus.ACCEPTED);
+		}
 	}
 
 	/**
