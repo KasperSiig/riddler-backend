@@ -81,7 +81,12 @@ export class JobService {
 	create(job: Job): Promise<Job> {
 		job._id = new Types.ObjectId().toString();
 		job.directory = process.env.JTR_ROOT + 'jobs/' + job._id + '/';
-		return this.model.create(job);
+		return this.model
+			.findOneAndUpdate({ _id: job._id }, job, {
+				upsert: true,
+				new: true,
+			})
+			.exec();
 	}
 
 	/**
