@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { JobService } from '../job';
 import { FileService } from '../file';
+import { JobService } from '../job';
 
 @Injectable()
 export class StatsService {
@@ -21,15 +21,8 @@ export class StatsService {
 		cracked: number;
 		percentage: number;
 	}> {
-		let total = 0;
-		let cracked = 0;
-		const potParsed = new Map<string, string>();
-
 		const job = await this.jobSvc.getJob(_id);
-		const [passwd, pot] = await Promise.all([
-			this.fileSvc.read(job.directory + 'passwd.txt'),
-			this.fileSvc.read(potFile),
-		]);
+		const passwd = await this.fileSvc.read(job.directory + 'passwd.txt');
 
 		const passwdParsed = passwd
 			.toString()
@@ -43,8 +36,22 @@ export class StatsService {
 			.map(p => {
 				return p.split(':')[3];
 			});
+		return this.getPercentageCracked(passwdParsed, potFile);
+	}
 
-		// Adds hashes to Map
+	async getPercentageCracked(
+		hashes: string[],
+		potFile: string,
+	): Promise<{
+		total: number;
+		cracked: number;
+		percentage: number;
+	}> {
+		const potParsed = new Map<string, string>();
+		let total = 0;
+		let cracked = 0;
+
+		const pot = await this.fileSvc.read(potFile);
 		pot
 			.toString()
 			.trim()
@@ -54,11 +61,10 @@ export class StatsService {
 				potParsed.set(split[0].substr(4).toLowerCase(), split[1].toLowerCase());
 			});
 
-		passwdParsed.forEach(pass => {
+		hashes.forEach(pass => {
 			total++;
 			if (potParsed.get(pass.toLowerCase())) cracked++;
 		});
-
 		const percentage = Math.round(100 - ((total - cracked) / total) * 100);
 		return { total, cracked, percentage };
 	}

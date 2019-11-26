@@ -1,8 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { StatsService } from '../stats.service';
-import { STATUS, JobModule, JobSchema, JobService, Job } from '../../job';
 import { MongooseModule } from '@nestjs/mongoose';
+import { Test, TestingModule } from '@nestjs/testing';
 import { FileModule, FileService } from '../../file';
+import { Job, JobModule, JobSchema, JobService } from '../../job';
+import { StatsService } from '../stats.service';
 
 describe('StatsService', () => {
 	let service: StatsService;
