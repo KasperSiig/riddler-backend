@@ -9,19 +9,15 @@ export class StatsService {
 	/**
 	 * Gets amount of admins cracked
 	 *
-	 * @param _id Id of Job to get stats on
+	 * @param id Id of Job to get stats on
 	 * @param potFile Optional pot file to use
 	 */
 	async getAdminsCracked(
 		// tslint:disable-next-line: variable-name
-		_id: string,
+		id: string,
 		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
-	): Promise<{
-		total: number;
-		cracked: number;
-		percentage: number;
-	}> {
-		const job = await this.jobSvc.getJob(_id);
+	): Promise<{ total: number; cracked: number; percentage: number }> {
+		const job = await this.jobSvc.getJob(id);
 		const passwd = await this.fileSvc.read(job.directory + 'passwd.txt');
 
 		const passwdParsed = passwd
@@ -39,6 +35,35 @@ export class StatsService {
 		return this.getPercentageCracked(passwdParsed, potFile);
 	}
 
+	/**
+	 * Gets amount of users cracked
+	 *
+	 * @param id Id of Job to get stats on
+	 * @param potFile Optional pot file to use
+	 */
+	async getAllCracked(
+		id: string,
+		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+	): Promise<{ total: number; cracked: number; percentage: number }> {
+		const job = await this.jobSvc.getJob(id);
+		const passwd = await this.fileSvc.read(job.directory + 'passwd.txt');
+
+		const passwdParsed = passwd
+			.toString()
+			.trim()
+			.split('\n')
+			.map(p => {
+				return p.split(':')[3];
+			});
+		return this.getPercentageCracked(passwdParsed, potFile);
+	}
+
+	/**
+	 * Gets percentage of users cracked
+	 *
+	 * @param hashes Hashes to run stats on
+	 * @param potFile Potfile to use
+	 */
 	async getPercentageCracked(
 		hashes: string[],
 		potFile: string,

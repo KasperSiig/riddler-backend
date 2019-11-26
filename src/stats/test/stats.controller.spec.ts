@@ -52,4 +52,18 @@ describe('Stats Controller', () => {
 		expect(spy).toHaveBeenCalledTimes(1);
 		expect(statsRtn).toBe(stats);
 	});
+
+	it('should call service for users cracked', async () => {
+		const stats = { total: 0, cracked: 0, percentage: 0 };
+		const spy = jest
+			.spyOn(statsSvc, 'getAllCracked')
+			// tslint:disable-next-line: variable-name
+			.mockImplementation(_id => {
+				return of(stats).toPromise();
+			});
+
+		const statsRtn = await controller.getAllCracked('id');
+		expect(spy).toHaveBeenCalledTimes(1);
+		expect(statsRtn).toBe(stats);
+	});
 });

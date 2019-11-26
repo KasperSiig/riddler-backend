@@ -68,4 +68,24 @@ describe('StatsService', () => {
 			percentage: 33,
 		});
 	});
+
+	it('should return stats for all users cracked', async () => {
+		const potFile = 'src/stats/test/files/john.pot';
+		let job = {
+			file: process.cwd() + '/src/stats/test/files/passwd.txt',
+			name: 'test',
+		} as Job;
+
+		job = await jobSvc.create(job);
+		await fileSvc.copy(
+			job.file,
+			process.env.JTR_ROOT + 'jobs/' + job._id + '/passwd.txt',
+		);
+		const stats = await service.getAllCracked(job._id, potFile);
+		expect(stats).toEqual({
+			total: 4,
+			cracked: 1,
+			percentage: 25,
+		});
+	});
 });
