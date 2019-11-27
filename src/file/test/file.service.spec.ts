@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FileService } from '../file.service';
 import * as fs from 'fs-extra';
 import { of } from 'rxjs';
+import { FileNotFoundException } from '../../exceptions';
 
 describe('FileService', () => {
 	let service: FileService;
@@ -19,7 +20,7 @@ describe('FileService', () => {
 	});
 
 	it('should call fs copy', () => {
-		const spy = jest.spyOn(fs, 'copy').mockImplementation(() => {});
+		const spy = jest.spyOn(fs, 'copy').mockImplementation(() => { });
 		service.copy('', '');
 		expect(spy).toHaveBeenCalled();
 	});
@@ -27,8 +28,16 @@ describe('FileService', () => {
 	it('should call fs append', () => {
 		const spy = jest
 			.spyOn(fs, 'appendFile')
-			.mockImplementation(() => new Promise(() => {}));
+			.mockImplementation(() => new Promise(() => { }));
 		service.write('', '');
 		expect(spy).toHaveBeenCalled();
+	});
+
+	it('should throw error if file does not exist', async () => {
+		try {
+			await service.validateOne('/opt/nofile');
+		} catch (err) {
+			expect(err.toString()).toBe('Error: File /opt/nofile Not Found');
+		}
 	});
 });

@@ -1,22 +1,13 @@
-import {
-	Controller,
-	Post,
-	Body,
-	Get,
-	Param,
-	Query,
-	HttpException,
-	HttpStatus,
-} from '@nestjs/common';
-import { JobService } from './job.service';
-import { Job } from './interfaces/job.interface';
-import { STATUS } from './enums/status.enum';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { DocumentQuery } from 'mongoose';
 import { JobDTO } from './dto/job.dto';
+import { STATUS } from './enums/status.enum';
+import { Job } from './interfaces/job.interface';
+import { JobService } from './job.service';
 
 @Controller('jobs')
 export class JobController {
-	constructor(private jobSvc: JobService) {}
+	constructor(private jobSvc: JobService) { }
 
 	/**
 	 * Starts a new job
@@ -24,11 +15,11 @@ export class JobController {
 	 * @param job Job to be started
 	 */
 	@Post('new')
-	async startNew(@Body() job: JobDTO): Promise<void> {
+	async startNew(@Body() job: JobDTO) {
 		try {
 			await this.jobSvc.startNew(job as Job);
-		} catch (error) {
-			throw new HttpException('', HttpStatus.ACCEPTED);
+		} catch (err) {
+			throw err;
 		}
 	}
 

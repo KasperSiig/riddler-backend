@@ -9,8 +9,4 @@ export class JobDTO {
 	@IsString()
 	@Matches(/^[a-zA-Z0-9\/\.]+$/)
 	file: string;
-
-	@IsString()
-	@Matches(/^[a-zA-Z0-9\/\.]+$/)
-	wordlist: string;
 }

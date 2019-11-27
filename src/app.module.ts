@@ -3,6 +3,7 @@ import { JobModule } from './job';
 import { FileModule } from './file';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StatsModule } from './stats/stats.module';
+import { ExceptionsModule } from './exceptions/exceptions.module';
 
 @Module({
 	imports: [
@@ -14,6 +15,7 @@ import { StatsModule } from './stats/stats.module';
 			useUnifiedTopology: true,
 		}),
 		StatsModule,
+		ExceptionsModule,
 	],
 })
 export class AppModule {}

@@ -1,11 +1,7 @@
-import {
-	Injectable,
-	NotImplementedException,
-	BadRequestException,
-} from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ChildProcess, spawn } from 'child_process';
-import { Model, Query, Types, DocumentQuery } from 'mongoose';
+import { DocumentQuery, Model, Query, Types } from 'mongoose';
 import { FileService } from '../file';
 import { STATUS } from './enums/status.enum';
 import { Job } from './interfaces/job.interface';
@@ -26,9 +22,14 @@ export class JobService {
 	 * @returns Array containing the child process spawned, and the job itself
 	 */
 	async startNew(job: Job): Promise<ChildProcess> {
-		throw new BadRequestException();
 		job.format = job.format || 'nt';
 		job.wordlist = job.wordlist || process.env.JTR_ROOT + 'wordlist.txt';
+
+		// Validation
+		if (!job.wordlist.match(/^[a-zA-Z0-9\/\.]+$/))
+			throw new BadRequestException('Wordlist is not a valid file');
+		this.fileSvc.validateMany([job.wordlist, job.file]);
+
 		const jobSaved = await this.create(job);
 		const passwdFile = jobSaved.directory + 'passwd.txt';
 		await this.fileSvc.copy(jobSaved.file, passwdFile);
