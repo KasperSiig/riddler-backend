@@ -44,7 +44,7 @@ describe('JobService', () => {
 		job = {
 			file: 'src/job/test/files/passwd.txt',
 			name: 'test',
-			wordlist: '/opt/jtr/wordlist.txt',
+			wordlist: 'src/job/test/files/wordlist.txt',
 		};
 
 		spawnSpy = jest
