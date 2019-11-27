@@ -8,4 +8,5 @@ export const JobSchema = new Schema({
 	format: String,
 	wordlist: String,
 	directory: String,
+	time: Schema.Types.Date,
 });

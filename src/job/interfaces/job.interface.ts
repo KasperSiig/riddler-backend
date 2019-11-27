@@ -8,4 +8,5 @@ export interface Job extends Document {
 	format?: string;
 	wordlist?: string;
 	directory?: string;
+	time?: number;
 }

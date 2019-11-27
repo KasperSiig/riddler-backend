@@ -25,6 +25,7 @@ export class JobService {
 	async startNew(job: Job): Promise<ChildProcess> {
 		job.format = job.format || 'nt';
 		job.wordlist = job.wordlist || process.env.JTR_ROOT + 'wordlist.txt';
+		job.time = Date.now();
 
 		// Validation
 		if (!job.wordlist.match(/^[a-zA-Z0-9\/\.]+$/))
