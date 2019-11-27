@@ -105,7 +105,21 @@ describe('JobService', () => {
 		try {
 			await service.startNew({ wordlist: ':?' } as Job);
 		} catch (err) {
-			expect(err.toString()).toBe('Error: {"statusCode":400,"error":"Bad Request","message":"Wordlist is not a valid file"}');
+			expect(err.toString()).toBe(
+				'Error: {"statusCode":400,"error":":?","message":"Wordlist not valid"}',
+			);
+		}
+	});
+
+	it('should throw error on format', async () => {
+		try {
+			await service.startNew({
+				format: 'ntlm',
+			} as Job);
+		} catch (err) {
+			expect(err.toString()).toBe(
+				'Error: {"statusCode":400,"error":"ntlm","message":"Format not valid"}',
+			);
 		}
 	});
 });
