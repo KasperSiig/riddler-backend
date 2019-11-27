@@ -8,6 +8,7 @@ import { Job } from './interfaces/job.interface';
 
 @Injectable()
 export class JobService {
+	validFormats = ['nt'];
 	children: Map<string, ChildProcess> = new Map();
 
 	constructor(
@@ -27,7 +28,9 @@ export class JobService {
 
 		// Validation
 		if (!job.wordlist.match(/^[a-zA-Z0-9\/\.]+$/))
-			throw new BadRequestException('Wordlist is not a valid file');
+			throw new BadRequestException('Wordlist not valid', job.wordlist);
+		if (!this.validFormats.includes(job.format))
+			throw new BadRequestException('Format not valid', job.format);
 		this.fileSvc.validateMany([job.wordlist, job.file]);
 
 		const jobSaved = await this.create(job);
