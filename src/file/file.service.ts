@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { appendFile, copy as fsCopy, readFile } from 'fs-extra';
+import { appendFile, copy as fsCopy, readFile, existsSync } from 'fs-extra';
+import { FileNotFoundException } from '../exceptions';
 
 @Injectable()
 export class FileService {
@@ -21,7 +22,28 @@ export class FileService {
 		return appendFile(dest, data);
 	}
 
+	/**
+	 * Reads a file
+	 *
+	 * @param src File to read
+	 */
 	read(src: string): Promise<Buffer> {
 		return readFile(src);
+	}
+
+	/**
+	 * Validates that files exist
+	 * @param files Files to validate
+	 */
+	validateMany(files: string[]) {
+		files.forEach(this.validateOne);
+	}
+
+	/**
+	 * Validates that file exists
+	 * @param file File to validate
+	 */
+	validateOne(file: string) {
+		if (!existsSync(file)) throw new FileNotFoundException(file);
 	}
 }

@@ -8,6 +8,7 @@ import { JobService } from '../job.service';
 import { JobSchema } from './../schemas/job.schema';
 import { of } from 'rxjs';
 import { STATUS } from '../enums/status.enum';
+import { FileNotFoundException } from '../../exceptions';
 
 describe('Job Controller', () => {
 	let controller: JobController;
@@ -91,5 +92,14 @@ describe('Job Controller', () => {
 		await controller.getByStatus(STATUS.FINISHED);
 
 		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should throw error', async () => {
+		jest.spyOn(jobSvc, 'startNew').mockImplementation(() => { throw new FileNotFoundException('test'); });
+		try {
+			await controller.startNew({} as Job);
+		} catch (err) {
+			expect(err.toString()).toBe('Error: File test Not Found');
+		}
 	});
 });

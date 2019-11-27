@@ -41,7 +41,11 @@ describe('JobService', () => {
 
 		service = module.get<JobService>(JobService);
 		fileSvc = module.get<FileService>(FileService);
-		job = { file: 'src/job/test/files/passwd.txt' };
+		job = {
+			file: 'src/job/test/files/passwd.txt',
+			name: 'test',
+			wordlist: 'src/job/test/files/wordlist.txt',
+		};
 
 		spawnSpy = jest
 			.spyOn(child_process, 'spawn')
@@ -95,5 +99,13 @@ describe('JobService', () => {
 
 		const jobRtn = await service.getByStatus(STATUS.FINISHED);
 		expect(jobRtn).toContainEqual(expect.objectContaining(newJob.toObject()));
+	});
+
+	it('should throw error on wordlist', async () => {
+		try {
+			await service.startNew({ wordlist: ':?' } as Job);
+		} catch (err) {
+			expect(err.toString()).toBe('Error: {"statusCode":400,"error":"Bad Request","message":"Wordlist is not a valid file"}');
+		}
 	});
 });
