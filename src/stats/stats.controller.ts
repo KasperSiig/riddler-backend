@@ -42,8 +42,7 @@ export class StatsController {
 	 * Returns stats in a comma seperated string
 	 */
 	@Get(':id/export')
-	@Header('Content-Disposition', 'attachment; filename="stats.csv"')
-	exportStats(@Param('id') id) {
-		return this.statsSvc.exportStats(id);
+	async exportStats(@Param('id') id) {
+		return { stats: await this.statsSvc.exportStats(id) };
 	}
 }
