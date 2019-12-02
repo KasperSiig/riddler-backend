@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Res, Header } from '@nestjs/common';
 import { StatsService } from './stats.service';
 
 @Controller('stats')
@@ -36,5 +36,14 @@ export class StatsController {
 		percentage: number;
 	}> {
 		return this.statsSvc.getAllCracked(id);
+	}
+
+	/**
+	 * Returns stats in a comma seperated string
+	 */
+	@Get(':id/export')
+	@Header('Content-Disposition', 'attachment; filename="stats.csv"')
+	exportStats(@Param('id') id) {
+		return this.statsSvc.exportStats(id);
 	}
 }

@@ -93,4 +93,19 @@ export class StatsService {
 		const percentage = Math.round(100 - ((total - cracked) / total) * 100);
 		return { total, cracked, percentage };
 	}
+
+	/**
+	 * Returns stats in a comma seperated string
+	 */
+	async exportStats(
+		jobId: string,
+		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+	) {
+		let stats = 'Name,Total,Cracked,Percentage\n';
+		const admins = await this.getAdminsCracked(jobId, potFile);
+		const all = await this.getAllCracked(jobId, potFile);
+		stats += 'Admins,' + Object.values(admins).join(',') + '\n';
+		stats += 'All,' + Object.values(all).join(',') + '\n';
+		return stats;
+	}
 }

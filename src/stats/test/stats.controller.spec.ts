@@ -66,4 +66,12 @@ describe('Stats Controller', () => {
 		expect(spy).toHaveBeenCalledTimes(1);
 		expect(statsRtn).toBe(stats);
 	});
+
+	it('should call service to export', () => {
+		const spy = jest
+			.spyOn(statsSvc, 'exportStats')
+			.mockImplementation(id => of('this, is, a, test').toPromise());
+		controller.exportStats('test');
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
 });

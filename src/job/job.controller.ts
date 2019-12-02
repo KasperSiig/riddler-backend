@@ -7,7 +7,7 @@ import { JobService } from './job.service';
 
 @Controller('jobs')
 export class JobController {
-	constructor(private jobSvc: JobService) { }
+	constructor(private jobSvc: JobService) {}
 
 	/**
 	 * Starts a new job

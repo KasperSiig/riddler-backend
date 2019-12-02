@@ -95,7 +95,9 @@ describe('Job Controller', () => {
 	});
 
 	it('should throw error', async () => {
-		jest.spyOn(jobSvc, 'startNew').mockImplementation(() => { throw new FileNotFoundException('test'); });
+		jest.spyOn(jobSvc, 'startNew').mockImplementation(() => {
+			throw new FileNotFoundException('test');
+		});
 		try {
 			await controller.startNew({} as Job);
 		} catch (err) {
