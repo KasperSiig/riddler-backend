@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { DocumentQuery } from 'mongoose';
 import { JobDTO } from './dto/job.dto';
 import { STATUS } from './enums/status.enum';
 import { Job } from './interfaces/job.interface';
 import { JobService } from './job.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('jobs')
 export class JobController {
@@ -15,9 +16,10 @@ export class JobController {
 	 * @param job Job to be started
 	 */
 	@Post('new')
-	async startNew(@Body() job: JobDTO) {
+	@UseInterceptors(FileInterceptor('file'))
+	async startNew(@Body() body: any, @UploadedFile() file) {
 		try {
-			await this.jobSvc.startNew(job as Job);
+			await this.jobSvc.startNew(JSON.parse(body.job) as Job, file);
 		} catch (err) {
 			throw err;
 		}

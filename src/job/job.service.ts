@@ -5,6 +5,7 @@ import { DocumentQuery, Model, Query, Types } from 'mongoose';
 import { FileService } from '../file';
 import { STATUS } from './enums/status.enum';
 import { Job } from './interfaces/job.interface';
+import { response } from 'express';
 
 @Injectable()
 export class JobService {
@@ -22,7 +23,7 @@ export class JobService {
 	 * @param job Job to be started
 	 * @returns Array containing the child process spawned, and the job itself
 	 */
-	async startNew(job: Job): Promise<ChildProcess> {
+	async startNew(job: Job, file: any): Promise<ChildProcess> {
 		job.format = job.format || 'nt';
 		job.wordlist = job.wordlist || process.env.JTR_ROOT + 'wordlist.txt';
 		job.time = Date.now();
@@ -32,11 +33,12 @@ export class JobService {
 			throw new BadRequestException('Wordlist not valid', job.wordlist);
 		if (!this.validFormats.includes(job.format))
 			throw new BadRequestException('Format not valid', job.format);
-		this.fileSvc.validateMany([job.wordlist, job.file]);
+		this.fileSvc.validateOne(job.wordlist);
 
 		const jobSaved = await this.create(job);
 		const passwdFile = jobSaved.directory + 'passwd.txt';
-		await this.fileSvc.copy(jobSaved.file, passwdFile);
+		this.fileSvc.mkdir(jobSaved.directory);
+		await this.fileSvc.write(passwdFile, file.buffer.toString());
 
 		const child = spawn(process.env.JTR_EXECUTABLE, [
 			passwdFile,

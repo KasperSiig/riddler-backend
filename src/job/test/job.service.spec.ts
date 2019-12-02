@@ -62,7 +62,7 @@ describe('JobService', () => {
 	});
 
 	it('should spawn process', async done => {
-		const child = await service.startNew(job);
+		const child = await service.startNew(job, { buffer: '' });
 		child.on('exit', () => {
 			expect(spawnSpy).toHaveBeenCalled();
 			done();
@@ -92,7 +92,6 @@ describe('JobService', () => {
 
 	it('should get all finished jobs', async () => {
 		let newJob = {
-			file: 'src/job/test/files/passwd.txt',
 			status: STATUS.FINISHED,
 		} as Job;
 		newJob = await service.create(newJob);
@@ -103,7 +102,7 @@ describe('JobService', () => {
 
 	it('should throw error on wordlist', async () => {
 		try {
-			await service.startNew({ wordlist: ':?' } as Job);
+			await service.startNew({ wordlist: ':?' } as Job, '');
 		} catch (err) {
 			expect(err.toString()).toBe(
 				'Error: {"statusCode":400,"error":":?","message":"Wordlist not valid"}',
@@ -113,9 +112,12 @@ describe('JobService', () => {
 
 	it('should throw error on format', async () => {
 		try {
-			await service.startNew({
-				format: 'ntlm',
-			} as Job);
+			await service.startNew(
+				{
+					format: 'ntlm',
+				} as Job,
+				'',
+			);
 		} catch (err) {
 			expect(err.toString()).toBe(
 				'Error: {"statusCode":400,"error":"ntlm","message":"Format not valid"}',
