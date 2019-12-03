@@ -82,4 +82,19 @@ describe('StatsService', () => {
 			percentage: 25,
 		});
 	});
+
+	it('should return a comma seperated string of stats', async () => {
+		const potFile = 'src/stats/test/files/john.pot';
+		let job = {
+			name: 'test',
+		} as Job;
+
+		job = await jobSvc.create(job);
+		job.directory = process.cwd() + '/src/stats/test/files/';
+		await jobSvc.update(job);
+		const stats = await service.exportStats(job._id, potFile);
+		expect(stats).toBe(
+			'Name,Total,Cracked,Percentage\n' + 'Admins,3,1,33\n' + 'All,4,1,25\n',
+		);
+	});
 });
