@@ -52,15 +52,12 @@ describe('StatsService', () => {
 	it('should return stats for admins cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		let job = {
-			file: process.cwd() + '/src/stats/test/files/passwd.txt',
 			name: 'test',
 		} as Job;
 
 		job = await jobSvc.create(job);
-		await fileSvc.copy(
-			job.file,
-			process.env.JTR_ROOT + 'jobs/' + job._id + '/passwd.txt',
-		);
+		job.directory = process.cwd() + '/src/stats/test/files/';
+		await jobSvc.update(job);
 		const stats = await service.getAdminsCracked(job._id, potFile);
 		expect(stats).toEqual({
 			total: 3,
@@ -72,15 +69,12 @@ describe('StatsService', () => {
 	it('should return stats for all users cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		let job = {
-			file: process.cwd() + '/src/stats/test/files/passwd.txt',
 			name: 'test',
 		} as Job;
 
 		job = await jobSvc.create(job);
-		await fileSvc.copy(
-			job.file,
-			process.env.JTR_ROOT + 'jobs/' + job._id + '/passwd.txt',
-		);
+		job.directory = process.cwd() + '/src/stats/test/files/';
+		await jobSvc.update(job);
 		const stats = await service.getAllCracked(job._id, potFile);
 		expect(stats).toEqual({
 			total: 4,

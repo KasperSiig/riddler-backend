@@ -3,7 +3,6 @@ import { STATUS } from '../enums/status.enum';
 
 export interface Job extends Document {
 	name: string;
-	file: string;
 	status?: STATUS;
 	format?: string;
 	wordlist?: string;

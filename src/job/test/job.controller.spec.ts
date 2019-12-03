@@ -52,13 +52,13 @@ describe('Job Controller', () => {
 	});
 
 	it('should call service to start job', async () => {
-		let job = { file: 'src/job/test/files/passwd.txt' } as Job;
+		let job = { } as Job;
 		job = await jobSvc.update(job);
 		jest
 			.spyOn(jobSvc, 'startNew')
 			.mockImplementation(() => of(execFile('ls')).toPromise());
 
-		controller.startNew(job);
+		controller.startNew({job: JSON.stringify(job)}, '');
 		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
 	});
 
@@ -70,7 +70,7 @@ describe('Job Controller', () => {
 	});
 
 	it('should get one job', async () => {
-		let job = { file: 'src/job/test/files/passwd.txt' } as Job;
+		let job = { } as Job;
 		job = await jobSvc.create(job);
 
 		const spy = jest.spyOn(jobSvc, 'getJob');
@@ -82,7 +82,6 @@ describe('Job Controller', () => {
 
 	it('should get all finished jobs', async () => {
 		let job = {
-			file: 'src/job/test/files/passwd.txt',
 			status: STATUS.FINISHED,
 		} as Job;
 		job = await jobSvc.create(job);
@@ -97,7 +96,7 @@ describe('Job Controller', () => {
 	it('should throw error', async () => {
 		jest.spyOn(jobSvc, 'startNew').mockImplementation(() => { throw new FileNotFoundException('test'); });
 		try {
-			await controller.startNew({} as Job);
+			await controller.startNew({job: JSON.stringify({} as Job)}, '');
 		} catch (err) {
 			expect(err.toString()).toBe('Error: File test Not Found');
 		}
