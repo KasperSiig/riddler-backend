@@ -23,11 +23,11 @@ describe('WordlistService', () => {
 			providers: [WordlistService],
 		}).compile();
 
-		afterEach(() => {
-			module.close();
-		});
-
 		service = module.get<WordlistService>(WordlistService);
+	});
+
+	afterEach(() => {
+		module.close();
 	});
 
 	it('should be defined', () => {

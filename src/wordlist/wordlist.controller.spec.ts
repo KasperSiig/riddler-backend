@@ -39,12 +39,9 @@ describe('Wordlist Controller', () => {
 	});
 
 	it('should call service get all wordlists', () => {
-		const spy = jest.spyOn(wordlistSvc, 'getAll').mockImplementation(() => [
-			{
-				name: 'wordlist',
-				path: '/opt/jtr/wordlist.txt',
-			} as Wordlist,
-		]);
+		const spy = jest.spyOn(wordlistSvc, 'getAll').mockImplementation(() => {
+			return wordlistSvc.model.find({});
+		});
 
 		controller.getAll();
 		expect(spy).toHaveBeenCalledTimes(1);
