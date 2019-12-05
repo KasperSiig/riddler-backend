@@ -4,6 +4,7 @@ import { FileModule } from './file';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StatsModule } from './stats/stats.module';
 import { ExceptionsModule } from './exceptions/exceptions.module';
+import { WordlistModule } from './wordlist';
 
 @Module({
 	imports: [
@@ -16,6 +17,7 @@ import { ExceptionsModule } from './exceptions/exceptions.module';
 		}),
 		StatsModule,
 		ExceptionsModule,
+		WordlistModule,
 	],
 })
 export class AppModule {}
