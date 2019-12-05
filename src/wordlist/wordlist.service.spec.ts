@@ -48,4 +48,33 @@ describe('WordlistService', () => {
 		const wordlistRtn = await service.getDefault();
 		expect(wordlistRtn.toObject()).toEqual(wordlistCreated.toObject());
 	});
+
+	it('should delete a wordlist', async () => {
+		const wordlist = { name: 'wordlist', path: '/opt/jtr/wordlist.txt' };
+		const wordlistCreated = await service.create(wordlist as Wordlist);
+		expect((await service.getAll()).map(o => o.toObject())).toEqual([
+			wordlistCreated.toObject(),
+		]);
+		service.deleteOne(wordlistCreated._id).then();
+		expect((await service.getAll()).length).toBe(0);
+	});
+
+	it('should update a wordlist', async () => {
+		const wordlist = {
+			name: 'wordlist',
+			path: '/opt/jtr/wordlist.txt',
+		} as Wordlist;
+
+		let wordlistCreated = (await service.create(wordlist)).toObject();
+		expect((await service.getAll()).map(o => o.toObject())).toEqual([
+			wordlistCreated,
+		]);
+
+		wordlistCreated = { ...wordlistCreated, name: 'update' };
+
+		await service.updateOne(wordlistCreated._id, wordlistCreated);
+		expect((await service.getOne(wordlistCreated._id)).toObject()).toEqual(
+			wordlistCreated,
+		);
+	});
 });

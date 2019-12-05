@@ -49,15 +49,27 @@ describe('Wordlist Controller', () => {
 	});
 
 	it('should call service to create wordlist', () => {
-		const wordlist = {
-			name: 'wordlist',
-			path: '/opt/jtr/wordlist.txt',
-		} as Wordlist;
-		const spy = jest.spyOn(wordlistSvc, 'create').mockImplementation(wl => {
-			return of(wl).toPromise();
-		});
+		const spy = jest
+			.spyOn(wordlistSvc, 'create')
+			.mockImplementation((): any => {});
 
-		controller.create(wordlist);
+		controller.create({} as any);
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should call service to delete wordlist', () => {
+		const spy = jest
+			.spyOn(wordlistSvc, 'deleteOne')
+			.mockImplementation((): any => {});
+		controller.delete({} as any);
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should call service to update wordlist', () => {
+		const spy = jest
+			.spyOn(wordlistSvc, 'updateOne')
+			.mockImplementation((): any => {});
+		controller.updateOne('test', {} as any);
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 });
