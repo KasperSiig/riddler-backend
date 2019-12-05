@@ -51,7 +51,7 @@ describe('Wordlist Controller', () => {
 	it('should call service to create wordlist', () => {
 		const spy = jest
 			.spyOn(wordlistSvc, 'create')
-			.mockImplementation((): any => {});
+			.mockImplementation((): any => of('').toPromise());
 
 		controller.create({} as any);
 		expect(spy).toHaveBeenCalledTimes(1);
@@ -60,7 +60,7 @@ describe('Wordlist Controller', () => {
 	it('should call service to delete wordlist', () => {
 		const spy = jest
 			.spyOn(wordlistSvc, 'deleteOne')
-			.mockImplementation((): any => {});
+			.mockImplementation((): any => of('').toPromise());
 		controller.delete({} as any);
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
@@ -68,7 +68,7 @@ describe('Wordlist Controller', () => {
 	it('should call service to update wordlist', () => {
 		const spy = jest
 			.spyOn(wordlistSvc, 'updateOne')
-			.mockImplementation((): any => {});
+			.mockImplementation((): any => of('').toPromise());
 		controller.updateOne('test', {} as any);
 		expect(spy).toHaveBeenCalledTimes(1);
 	});

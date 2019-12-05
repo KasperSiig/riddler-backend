@@ -16,14 +16,6 @@ export class WordlistController {
 	constructor(private wordlistSvc: WordlistService) {}
 
 	/**
-	 * Gets all wordlists saved in database
-	 */
-	@Get('')
-	getAll(): DocumentQuery<Wordlist[], Wordlist, {}> {
-		return this.wordlistSvc.getAll();
-	}
-
-	/**
 	 * Creates wordlist
 	 * @param wordlist Wordlist to create
 	 */
@@ -33,17 +25,31 @@ export class WordlistController {
 	}
 
 	/**
+	 * Gets all wordlists saved in database
+	 */
+	@Get('')
+	getAll(): DocumentQuery<Wordlist[], Wordlist, {}> {
+		return this.wordlistSvc.getAll();
+	}
+
+	/**
+	 * Updates a given wordlist
+	 *
+	 * @param id Id of wordlist to update
+	 * @param wordlist Content to update in wordlist
+	 */
+	@Put(':id')
+	updateOne(@Param('id') id: string, @Body() wordlist: Wordlist) {
+		this.wordlistSvc.updateOne(id, wordlist).then();
+	}
+
+	/**
 	 * Deletes wordlist
 	 *
 	 * @param id Id of wordlist to delete
 	 */
 	@Delete(':id')
 	delete(@Param('id') id: string) {
-		this.wordlistSvc.deleteOne(id);
-	}
-
-	@Put(':id')
-	updateOne(@Param('id') id: string, @Body() wordlist: Wordlist) {
-		this.wordlistSvc.updateOne(id, wordlist);
+		this.wordlistSvc.deleteOne(id).then();
 	}
 }
