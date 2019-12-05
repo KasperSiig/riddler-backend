@@ -10,5 +10,6 @@ import { WordlistSchema } from './schemas/wordlist.schema';
 	],
 	controllers: [WordlistController],
 	providers: [WordlistService],
+	exports: [WordlistService],
 })
 export class WordlistModule {}

@@ -5,6 +5,7 @@ import { DocumentQuery, Model, Query, Types } from 'mongoose';
 import { FileService } from '../file';
 import { STATUS } from './enums/status.enum';
 import { Job } from './interfaces/job.interface';
+import { WordlistService } from '../wordlist';
 
 @Injectable()
 export class JobService {
@@ -13,6 +14,7 @@ export class JobService {
 
 	constructor(
 		private fileSvc: FileService,
+		private wordlistSvc: WordlistService,
 		@InjectModel('Job') public readonly model: Model<Job>,
 	) {}
 
@@ -24,15 +26,14 @@ export class JobService {
 	 */
 	async startNew(job: Job, file: any): Promise<ChildProcess> {
 		job.format = job.format || 'nt';
-		job.wordlist = job.wordlist || process.env.JTR_ROOT + 'wordlist.txt';
+		job.wordlist = job.wordlist || (await this.wordlistSvc.getDefault());
 		job.time = Date.now();
-
 		// Validation
-		if (!job.wordlist.match(/^[a-zA-Z0-9\/\.]+$/))
-			throw new BadRequestException('Wordlist not valid', job.wordlist);
+		if (!job.wordlist.path.match(/^[a-zA-Z0-9\/\.]+$/))
+			throw new BadRequestException('Wordlist not valid', job.wordlist.path);
 		if (!this.validFormats.includes(job.format))
 			throw new BadRequestException('Format not valid', job.format);
-		this.fileSvc.validateOne(job.wordlist);
+		this.fileSvc.validateOne(job.wordlist.path);
 
 		const jobSaved = await this.create(job);
 		const passwdFile = jobSaved.directory + 'passwd.txt';
