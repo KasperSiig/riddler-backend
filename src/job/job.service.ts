@@ -1,11 +1,10 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { ChildProcess, spawn } from 'child_process';
 import { DocumentQuery, Model, Query, Types } from 'mongoose';
 import { FileService } from '../file';
 import { STATUS } from './enums/status.enum';
 import { Job } from './interfaces/job.interface';
-import { response } from 'express';
 
 @Injectable()
 export class JobService {
