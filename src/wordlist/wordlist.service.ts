@@ -30,7 +30,6 @@ export class WordlistService {
 			})
 			.exec();
 	}
-
 	/**
 	 * Gets default wordlist
 	 */
