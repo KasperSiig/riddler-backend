@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { Wordlist } from './interfaces/wordlist.interface';
 import { WordlistService } from './wordlist.service';
 import { DocumentQuery } from 'mongoose';
@@ -13,5 +13,10 @@ export class WordlistController {
 	@Get('')
 	getAll(): DocumentQuery<Wordlist[], Wordlist, {}> {
 		return this.wordlistSvc.getAll();
+	}
+
+	@Post('')
+	create(@Body() wordlist: Wordlist): Promise<Wordlist> {
+		return this.wordlistSvc.create(wordlist);
 	}
 }

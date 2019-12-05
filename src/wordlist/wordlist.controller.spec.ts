@@ -1,9 +1,10 @@
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { WordlistSchema } from './schemas/wordlist.schema';
 import { WordlistController } from './wordlist.controller';
 import { WordlistService } from './wordlist.service';
+import { of } from 'rxjs';
 import { Wordlist } from './interfaces/wordlist.interface';
-import { MongooseModule } from '@nestjs/mongoose';
-import { WordlistSchema } from './schemas/wordlist.schema';
 
 describe('Wordlist Controller', () => {
 	let controller: WordlistController;
@@ -44,6 +45,19 @@ describe('Wordlist Controller', () => {
 		});
 
 		controller.getAll();
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should call service to create wordlist', () => {
+		const wordlist = {
+			name: 'wordlist',
+			path: '/opt/jtr/wordlist.txt',
+		} as Wordlist;
+		const spy = jest.spyOn(wordlistSvc, 'create').mockImplementation(wl => {
+			return of(wl).toPromise();
+		});
+
+		controller.create(wordlist);
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 });
