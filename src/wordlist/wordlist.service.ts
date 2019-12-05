@@ -30,4 +30,11 @@ export class WordlistService {
 			})
 			.exec();
 	}
+	/**
+	 * Gets default wordlist
+	 */
+	async getDefault() {
+		const arr = await this.model.find({}).exec();
+		return arr[0];
+	}
 }

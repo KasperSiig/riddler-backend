@@ -26,7 +26,8 @@ describe('WordlistService', () => {
 		service = module.get<WordlistService>(WordlistService);
 	});
 
-	afterEach(() => {
+	afterEach(async () => {
+		await service.model.deleteMany({});
 		module.close();
 	});
 
@@ -39,5 +40,12 @@ describe('WordlistService', () => {
 		const wordlistCreated = await service.create(wordlist as Wordlist);
 		const wordlistRtn = await service.getAll();
 		expect(wordlistRtn[0].toObject()).toEqual(wordlistCreated.toObject());
+	});
+
+	it('should return the default wordlist', async () => {
+		const wordlist = { name: 'wordlist', path: '/opt/jtr/wordlist.txt' };
+		const wordlistCreated = await service.create(wordlist as Wordlist);
+		const wordlistRtn = await service.getDefault();
+		expect(wordlistRtn.toObject()).toEqual(wordlistCreated.toObject());
 	});
 });
