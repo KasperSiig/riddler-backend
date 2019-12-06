@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FileService } from '../file';
 import { JobService } from '../job';
+import { of } from 'rxjs';
 
 @Injectable()
 export class StatsService {
@@ -107,5 +108,42 @@ export class StatsService {
 		stats += 'Admins,' + Object.values(admins).join(',') + '\n';
 		stats += 'All,' + Object.values(all).join(',') + '\n';
 		return stats;
+	}
+
+	async getpasswdHash(
+		password: string,
+		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+	): Promise<string> {
+		const potParsed = new Map<string, string>();
+
+		const pot = await this.fileSvc.read(potFile);
+		pot
+			.toString()
+			.trim()
+			.split('\n')
+			.map(p => {
+				const split = p.split(':');
+				potParsed.set(split[1], split[0].substr(4).toLowerCase());
+			});
+		return potParsed.get(password);
+	}
+
+	async getFreqCount(id: string, password: string) {
+		const job = await this.jobSvc.getJob(id);
+		const pwHash = await this.getpasswdHash(password);
+		const passwd = await this.fileSvc.read(job.directory + 'passwd.txt');
+		let count = 0;
+
+		const passwdParsed = passwd
+			.toString()
+			.trim()
+			.split('\n')
+			.map(p => {
+				return p.split(':')[3];
+			});
+		passwdParsed.forEach(pass => {
+			if (pass.toLowerCase() === pwHash) count++;
+		});
+		return count;
 	}
 }
