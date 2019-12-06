@@ -110,6 +110,12 @@ export class StatsService {
 		return stats;
 	}
 
+	/**
+	 * Getting the hash of the password received
+	 *
+	 * @param password Password received
+	 * @param potFile Optional pot file to use
+	 */
 	async getpasswdHash(
 		password: string,
 		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
@@ -128,6 +134,12 @@ export class StatsService {
 		return potParsed.get(password);
 	}
 
+	/**
+	 * Return frequency on password
+	 *
+	 * @param id Id of job
+	 * @param password Password to check frequency on
+	 */
 	async getFreqCount(id: string, password: string) {
 		const job = await this.jobSvc.getJob(id);
 		const pwHash = await this.getpasswdHash(password);

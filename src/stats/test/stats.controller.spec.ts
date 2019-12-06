@@ -74,4 +74,12 @@ describe('Stats Controller', () => {
 		controller.exportStats('test');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
+
+	it('should call service to get frequency', () => {
+		const spy = jest
+			.spyOn(statsSvc, 'getFreqCount')
+			.mockImplementation((): any => {});
+		controller.passwdHash('Test123', '1');
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
 });
