@@ -1,9 +1,10 @@
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { WordlistSchema } from './schemas/wordlist.schema';
 import { WordlistController } from './wordlist.controller';
 import { WordlistService } from './wordlist.service';
+import { of } from 'rxjs';
 import { Wordlist } from './interfaces/wordlist.interface';
-import { MongooseModule } from '@nestjs/mongoose';
-import { WordlistSchema } from './schemas/wordlist.schema';
 
 describe('Wordlist Controller', () => {
 	let controller: WordlistController;
@@ -44,6 +45,31 @@ describe('Wordlist Controller', () => {
 		});
 
 		controller.getAll();
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should call service to create wordlist', () => {
+		const spy = jest
+			.spyOn(wordlistSvc, 'create')
+			.mockImplementation((): any => of('').toPromise());
+
+		controller.create({} as any);
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should call service to delete wordlist', () => {
+		const spy = jest
+			.spyOn(wordlistSvc, 'deleteOne')
+			.mockImplementation((): any => of('').toPromise());
+		controller.delete({} as any);
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should call service to update wordlist', () => {
+		const spy = jest
+			.spyOn(wordlistSvc, 'updateOne')
+			.mockImplementation((): any => of('').toPromise());
+		controller.updateOne('test', {} as any);
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 });
