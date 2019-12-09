@@ -43,7 +43,7 @@ export class JobService {
 		const child = spawn(process.env.JTR_EXECUTABLE, [
 			passwdFile,
 			'--format=' + jobSaved.format,
-			'--wordlist=' + jobSaved.wordlist,
+			'--wordlist=' + jobSaved.wordlist.path,
 		]);
 
 		this.startListeners(jobSaved, child);

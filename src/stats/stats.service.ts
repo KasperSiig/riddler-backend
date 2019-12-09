@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FileService } from '../file';
 import { JobService } from '../job';
+import { of } from 'rxjs';
 
 @Injectable()
 export class StatsService {
@@ -77,6 +78,8 @@ export class StatsService {
 		let cracked = 0;
 
 		const pot = await this.fileSvc.read(potFile);
+		if (pot.toString() === '')
+			return { total: hashes.length, cracked: 0, percentage: 0 };
 		pot
 			.toString()
 			.trim()
@@ -107,5 +110,55 @@ export class StatsService {
 		stats += 'Admins,' + Object.values(admins).join(',') + '\n';
 		stats += 'All,' + Object.values(all).join(',') + '\n';
 		return stats;
+	}
+
+	/**
+	 * Getting the hash of the password received
+	 *
+	 * @param password Password received
+	 * @param potFile Optional pot file to use
+	 */
+	async getpasswdHash(password: string, potFile: string): Promise<string> {
+		const potParsed = new Map<string, string>();
+
+		const pot = await this.fileSvc.read(potFile);
+		pot
+			.toString()
+			.trim()
+			.split('\n')
+			.map(p => {
+				const split = p.split(':');
+				potParsed.set(split[1], split[0].substr(4).toLowerCase());
+			});
+		return potParsed.get(password);
+	}
+
+	/**
+	 * Return frequency on password
+	 *
+	 * @param id Id of job
+	 * @param password Password to check frequency on
+	 */
+	async getFreqCount(
+		id: string,
+		password: string,
+		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+	) {
+		const job = await this.jobSvc.getJob(id);
+		const passwdHash = await this.getpasswdHash(password, potFile);
+		const passwd = await this.fileSvc.read(job.directory + 'passwd.txt');
+		let count = 0;
+
+		const passwdParsed = passwd
+			.toString()
+			.trim()
+			.split('\n')
+			.map(p => {
+				return p.split(':')[3];
+			});
+		passwdParsed.forEach(pass => {
+			if (pass.toLowerCase() === passwdHash) count++;
+		});
+		return count;
 	}
 }

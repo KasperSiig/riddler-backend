@@ -1,5 +1,6 @@
-import { Controller, Get, Param, Res, Header } from '@nestjs/common';
+import { Controller, Get, Param, Res, Header, Query } from '@nestjs/common';
 import { StatsService } from './stats.service';
+import { stringify } from 'querystring';
 
 @Controller('stats')
 export class StatsController {
@@ -44,5 +45,16 @@ export class StatsController {
 	@Get(':id/export')
 	async exportStats(@Param('id') id) {
 		return { stats: await this.statsSvc.exportStats(id) };
+	}
+
+	/**
+	 * Returns frequency of a specific password
+	 *
+	 * @param password Password to check frequency on
+	 * @param id Id of job to get frequency on
+	 */
+	@Get(':id/frequency')
+	async passwdHash(@Query('password') password, @Param('id') id) {
+		return { count: await this.statsSvc.getFreqCount(id, password) };
 	}
 }
