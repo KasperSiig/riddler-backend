@@ -28,12 +28,20 @@ export class JobService {
 		job.format = job.format || 'nt';
 		job.wordlist = job.wordlist || (await this.wordlistSvc.getDefault());
 		job.time = Date.now();
+
 		// Validation
+		if (!job.name) throw new BadRequestException('Name required', job.name);
+		if (await this.getJobByName(job.name))
+			throw new BadRequestException(
+				'Job with that name already exists',
+				job.name,
+			);
 		if (!job.wordlist.path.match(/^[a-zA-Z0-9\/\.]+$/))
 			throw new BadRequestException('Wordlist not valid', job.wordlist.path);
 		if (!this.validFormats.includes(job.format))
 			throw new BadRequestException('Format not valid', job.format);
 		this.fileSvc.validateOne(job.wordlist.path);
+		if (!file) throw new BadRequestException('No file chosen', file.toString());
 
 		const jobSaved = await this.create(job);
 		const passwdFile = jobSaved.directory + 'passwd.txt';
@@ -123,5 +131,14 @@ export class JobService {
 	 */
 	getByStatus(status: STATUS): DocumentQuery<Job[], Job, {}> {
 		return this.model.find({ status });
+	}
+
+	/**
+	 * Finds job by a given name
+	 *
+	 * @param name Name to find Job by
+	 */
+	getJobByName(name: string) {
+		return this.model.findOne({ name });
 	}
 }

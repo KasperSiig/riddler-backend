@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import {
+	Body,
+	Controller,
+	Get,
+	Param,
+	Post,
+	Query,
+	UploadedFile,
+	UseInterceptors,
+} from '@nestjs/common';
 import { DocumentQuery } from 'mongoose';
 import { JobDTO } from './dto/job.dto';
 import { STATUS } from './enums/status.enum';
