@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { FileService } from '../file';
 import { JobService } from '../job';
-import { of } from 'rxjs';
 
 @Injectable()
 export class StatsService {
@@ -160,5 +159,41 @@ export class StatsService {
 			if (pass.toLowerCase() === passwdHash) count++;
 		});
 		return count;
+	}
+
+	async getTopTenStats(
+		id: string,
+		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+	) {
+		const job = await this.jobSvc.getJob(id);
+		const passwd = await this.fileSvc.read(job.directory + 'passwd.txt');
+		const potParsed = new Map<string, string>();
+
+		const passwdParsed = passwd
+			.toString()
+			.trim()
+			.split('\n')
+			.map(p => {
+				return p.split(':')[3];
+			});
+
+		const pot = await this.fileSvc.read(potFile);
+		pot
+			.toString()
+			.trim()
+			.split('\n')
+			.map(p => {
+				const split = p.split(':');
+				potParsed.set(split[1], split[0].substr(4).toLowerCase());
+			});
+		const passwdWithCount = [...potParsed.keys()].map(k => {
+			return {
+				password: k,
+				count: passwdParsed.filter(p => p.toLowerCase() === potParsed.get(k))
+					.length,
+			};
+		});
+
+		return passwdWithCount.sort((p1, p2) => p2.count - p1.count).slice(0, 9);
 	}
 }

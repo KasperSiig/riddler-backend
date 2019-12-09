@@ -82,4 +82,12 @@ describe('Stats Controller', () => {
 		controller.passwdHash('Test123', '1');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
+
+	it('should call service to get top 10 stats', () => {
+		const spy = jest
+			.spyOn(statsSvc, 'getTopTenStats')
+			.mockImplementation((): any => {});
+		controller.getTopTenStats('id');
+		expect(spy).toHaveBeenCalledTimes(1);
+	});
 });
