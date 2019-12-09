@@ -3,7 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FileModule, FileService } from '../../file';
 import { Job, JobModule, JobSchema, JobService } from '../../job';
 import { StatsService } from '../stats.service';
-import { exec } from 'child_process';
 
 describe('StatsService', () => {
 	let service: StatsService;
@@ -52,6 +51,11 @@ describe('StatsService', () => {
 
 	it('should return stats for admins cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
+		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		await fileSvc.write(
+			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+			(await fileSvc.read(potFile)).toString(),
+		);
 		let job = {
 			name: 'test',
 		} as Job;
@@ -59,7 +63,7 @@ describe('StatsService', () => {
 		job = await jobSvc.create(job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
 		await jobSvc.update(job);
-		const stats = await service.getAdminsCracked(job._id, potFile);
+		const stats = await service.getAdminsCracked(job._id);
 		expect(stats).toEqual({
 			total: 3,
 			cracked: 1,
@@ -69,6 +73,11 @@ describe('StatsService', () => {
 
 	it('should return stats for all users cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
+		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		await fileSvc.write(
+			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+			(await fileSvc.read(potFile)).toString(),
+		);
 		let job = {
 			name: 'test',
 		} as Job;
@@ -76,7 +85,7 @@ describe('StatsService', () => {
 		job = await jobSvc.create(job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
 		await jobSvc.update(job);
-		const stats = await service.getAllCracked(job._id, potFile);
+		const stats = await service.getAllCracked(job._id);
 		expect(stats).toEqual({
 			total: 4,
 			cracked: 1,
@@ -86,6 +95,11 @@ describe('StatsService', () => {
 
 	it('should return a comma seperated string of stats', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
+		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		await fileSvc.write(
+			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+			(await fileSvc.read(potFile)).toString(),
+		);
 		let job = {
 			name: 'test',
 		} as Job;
@@ -93,7 +107,7 @@ describe('StatsService', () => {
 		job = await jobSvc.create(job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
 		await jobSvc.update(job);
-		const stats = await service.exportStats(job._id, potFile);
+		const stats = await service.exportStats(job._id);
 		expect(stats).toBe(
 			'Name,Total,Cracked,Percentage\n' + 'Admins,3,1,33\n' + 'All,4,1,25\n',
 		);
@@ -108,6 +122,11 @@ describe('StatsService', () => {
 
 	it('should return correct frequency count', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
+		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		await fileSvc.write(
+			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+			(await fileSvc.read(potFile)).toString(),
+		);
 		let job = {
 			name: 'test',
 		} as Job;
@@ -115,7 +134,25 @@ describe('StatsService', () => {
 		job = await jobSvc.create(job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
 		await jobSvc.update(job);
-		const count = await service.getFreqCount(job._id, '#Password', potFile);
+		const count = await service.getFreqCount(job._id, '#Password');
 		expect(count).toBe(1);
+	});
+
+	it('should return correct top 10 stats', async () => {
+		const potFile = 'src/stats/test/files/john.pot';
+		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		await fileSvc.write(
+			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+			(await fileSvc.read(potFile)).toString(),
+		);
+		let job = {
+			name: 'test',
+		} as Job;
+
+		job = await jobSvc.create(job);
+		job.directory = process.cwd() + '/src/stats/test/files/';
+		await jobSvc.update(job);
+		const result = await service.getTopTenStats(job._id);
+		expect(result).toEqual([{ password: '#Password', count: 1 }]);
 	});
 });
