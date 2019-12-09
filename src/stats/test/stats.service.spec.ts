@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FileModule, FileService } from '../../file';
 import { Job, JobModule, JobSchema, JobService } from '../../job';
 import { StatsService } from '../stats.service';
+import { exec } from 'child_process';
 
 describe('StatsService', () => {
 	let service: StatsService;
@@ -96,5 +97,25 @@ describe('StatsService', () => {
 		expect(stats).toBe(
 			'Name,Total,Cracked,Percentage\n' + 'Admins,3,1,33\n' + 'All,4,1,25\n',
 		);
+	});
+
+	it('should return 0 if pot file is empty', async () => {
+		const hashes = [''];
+		const potFile = 'src/stats/test/files/john.empty.pot';
+		const stats = await service.getPercentageCracked(hashes, potFile);
+		expect(stats).toEqual({ total: hashes.length, cracked: 0, percentage: 0 });
+	});
+
+	it('should return correct frequency count', async () => {
+		const potFile = 'src/stats/test/files/john.pot';
+		let job = {
+			name: 'test',
+		} as Job;
+
+		job = await jobSvc.create(job);
+		job.directory = process.cwd() + '/src/stats/test/files/';
+		await jobSvc.update(job);
+		const count = await service.getFreqCount(job._id, '#Password', potFile);
+		expect(count).toBe(1);
 	});
 });

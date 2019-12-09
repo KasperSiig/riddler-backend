@@ -78,6 +78,8 @@ export class StatsService {
 		let cracked = 0;
 
 		const pot = await this.fileSvc.read(potFile);
+		if (pot.toString() === '')
+			return { total: hashes.length, cracked: 0, percentage: 0 };
 		pot
 			.toString()
 			.trim()
@@ -116,10 +118,7 @@ export class StatsService {
 	 * @param password Password received
 	 * @param potFile Optional pot file to use
 	 */
-	async getpasswdHash(
-		password: string,
-		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
-	): Promise<string> {
+	async getpasswdHash(password: string, potFile: string): Promise<string> {
 		const potParsed = new Map<string, string>();
 
 		const pot = await this.fileSvc.read(potFile);
@@ -140,9 +139,13 @@ export class StatsService {
 	 * @param id Id of job
 	 * @param password Password to check frequency on
 	 */
-	async getFreqCount(id: string, password: string) {
+	async getFreqCount(
+		id: string,
+		password: string,
+		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
+	) {
 		const job = await this.jobSvc.getJob(id);
-		const pwHash = await this.getpasswdHash(password);
+		const passwdHash = await this.getpasswdHash(password, potFile);
 		const passwd = await this.fileSvc.read(job.directory + 'passwd.txt');
 		let count = 0;
 
@@ -154,7 +157,7 @@ export class StatsService {
 				return p.split(':')[3];
 			});
 		passwdParsed.forEach(pass => {
-			if (pass.toLowerCase() === pwHash) count++;
+			if (pass.toLowerCase() === passwdHash) count++;
 		});
 		return count;
 	}
