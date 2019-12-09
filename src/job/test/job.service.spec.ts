@@ -8,6 +8,8 @@ import { JobSchema } from '../schemas/job.schema';
 import { STATUS } from '../enums/status.enum';
 import { Job } from '../interfaces/job.interface';
 import { WordlistModule } from '../../wordlist';
+import any = jasmine.any;
+import { log } from 'util';
 
 describe('JobService', () => {
 	let service: JobService;
@@ -105,10 +107,69 @@ describe('JobService', () => {
 
 	it('should throw error on wordlist', async () => {
 		try {
-			await service.startNew({ wordlist: { name: '', path: ':?' } } as Job, '');
+			await service.startNew(
+				{
+					name: 'test',
+					wordlist: { name: '', path: ':?' },
+				} as Job,
+				'',
+			);
 		} catch (err) {
 			expect(err.toString()).toBe(
 				'Error: {"statusCode":400,"error":":?","message":"Wordlist not valid"}',
+			);
+		}
+	});
+
+	it('should throw an error on name required', async () => {
+		try {
+			await service.startNew(
+				{
+					name: '',
+					wordlist: { name: '', path: 'src/job/test/files/wordlist.txt' },
+				} as Job,
+				'',
+			);
+		} catch (err) {
+			expect(err.toString()).toBe(
+				'Error: {"statusCode":400,"error":"","message":"Name required"}',
+			);
+		}
+	});
+
+	it('should throw error on existing name', async () => {
+		const newJob = {
+			name: 'test',
+		} as Job;
+		await service.create(newJob);
+
+		try {
+			await service.startNew(
+				{
+					name: 'test',
+					wordlist: { name: '', path: 'src/job/test/files/wordlist.txt' },
+				} as Job,
+				'',
+			);
+		} catch (err) {
+			expect(err.toString()).toBe(
+				'Error: {"statusCode":400,"error":"test","message":"Job with that name already exists"}',
+			);
+		}
+	});
+
+	it('should throw error if no file is chosen', async () => {
+		try {
+			await service.startNew(
+				{
+					name: 'test',
+					wordlist: { name: '', path: 'src/job/test/files/wordlist.txt' },
+				} as Job,
+				'',
+			);
+		} catch (err) {
+			expect(err.toString()).toBe(
+				'Error: {"statusCode":400,"error":"","message":"No file chosen"}',
 			);
 		}
 	});
@@ -117,6 +178,7 @@ describe('JobService', () => {
 		try {
 			await service.startNew(
 				{
+					name: 'test',
 					format: 'ntlm',
 					wordlist: { name: '', path: 'wordlist.txt' },
 				} as Job,
