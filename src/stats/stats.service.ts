@@ -161,6 +161,12 @@ export class StatsService {
 		return count;
 	}
 
+	/**
+	 * Get top 10 most used passwords
+	 *
+	 * @param id Id of job to get stats by
+	 * @param potFile Optional potfile to use
+	 */
 	async getTopTenStats(
 		id: string,
 		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
