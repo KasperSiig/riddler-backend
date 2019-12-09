@@ -1,7 +1,7 @@
-import { Schema } from 'mongoose';
+import { Schema, Types } from 'mongoose';
 
 export const WordlistSchema = new Schema({
-	_id: String,
+	_id: Types.ObjectId,
 	name: String,
 	path: String,
 });
