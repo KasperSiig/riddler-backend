@@ -7,6 +7,7 @@ import { JobService } from '../job.service';
 import { JobSchema } from '../schemas/job.schema';
 import { STATUS } from '../enums/status.enum';
 import { Job } from '../interfaces/job.interface';
+import { WordlistModule } from '../../wordlist';
 
 describe('JobService', () => {
 	let service: JobService;
@@ -35,6 +36,7 @@ describe('JobService', () => {
 					useFindAndModify: false,
 				}),
 				MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]),
+				WordlistModule,
 			],
 			providers: [JobService],
 		}).compile();
@@ -44,7 +46,7 @@ describe('JobService', () => {
 		job = {
 			file: 'src/job/test/files/passwd.txt',
 			name: 'test',
-			wordlist: 'src/job/test/files/wordlist.txt',
+			wordlist: { name: 'default', path: 'src/job/test/files/wordlist.txt' },
 		};
 
 		spawnSpy = jest
@@ -52,7 +54,8 @@ describe('JobService', () => {
 			.mockImplementation(() => execFile('ls'));
 	});
 
-	afterEach(() => {
+	afterEach(async () => {
+		await service.model.deleteMany({});
 		spawnSpy.mockRestore();
 		module.close();
 	});
@@ -102,7 +105,7 @@ describe('JobService', () => {
 
 	it('should throw error on wordlist', async () => {
 		try {
-			await service.startNew({ wordlist: ':?' } as Job, '');
+			await service.startNew({ wordlist: { name: '', path: ':?' } } as Job, '');
 		} catch (err) {
 			expect(err.toString()).toBe(
 				'Error: {"statusCode":400,"error":":?","message":"Wordlist not valid"}',
@@ -115,6 +118,7 @@ describe('JobService', () => {
 			await service.startNew(
 				{
 					format: 'ntlm',
+					wordlist: { name: '', path: 'wordlist.txt' },
 				} as Job,
 				'',
 			);
