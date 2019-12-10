@@ -3,6 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { FileModule, FileService } from '../../file';
 import { Job, JobModule, JobSchema, JobService } from '../../job';
 import { StatsService } from '../stats.service';
+import { HelperService } from '../helper.service';
 
 describe('StatsService', () => {
 	let service: StatsService;
@@ -33,7 +34,7 @@ describe('StatsService', () => {
 				MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]),
 				FileModule,
 			],
-			providers: [StatsService],
+			providers: [StatsService, HelperService],
 		}).compile();
 
 		service = module.get<StatsService>(StatsService);
@@ -109,15 +110,23 @@ describe('StatsService', () => {
 		await jobSvc.update(job);
 		const stats = await service.exportStats(job._id);
 		expect(stats).toBe(
-			'Name,Total,Cracked,Percentage\n' + 'Admins,3,1,33\n' + 'All,4,1,25\n',
+			'Name,Total,Cracked,Percentage,Top 10\n' +
+				'Admins,3,1,33,#Password:1\n' +
+				'All,4,1,25,#Password:1\n',
 		);
 	});
 
 	it('should return 0 if pot file is empty', async () => {
-		const hashes = [''];
+		let job = {
+			name: 'test',
+		} as Job;
+
+		job = await jobSvc.create(job);
+		job.directory = process.cwd() + '/src/stats/test/files/';
+		await jobSvc.update(job);
 		const potFile = 'src/stats/test/files/john.empty.pot';
-		const stats = await service.getPercentageCracked(hashes, potFile);
-		expect(stats).toEqual({ total: hashes.length, cracked: 0, percentage: 0 });
+		const stats = await service.getPercentageCracked(job._id, potFile);
+		expect(stats).toEqual({ total: 4, cracked: 0, percentage: 0 });
 	});
 
 	it('should return correct frequency count', async () => {
