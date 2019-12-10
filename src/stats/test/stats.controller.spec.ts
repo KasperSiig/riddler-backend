@@ -5,6 +5,7 @@ import { of } from 'rxjs';
 import { JobModule, JobSchema } from '../../job';
 import { MongooseModule } from '@nestjs/mongoose';
 import { FileModule } from '../../file';
+import { HelperService } from '../helper.service';
 
 describe('Stats Controller', () => {
 	let controller: StatsController;
@@ -24,7 +25,7 @@ describe('Stats Controller', () => {
 				MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]),
 			],
 			controllers: [StatsController],
-			providers: [StatsService],
+			providers: [StatsService, HelperService],
 		}).compile();
 
 		controller = module.get<StatsController>(StatsController);
