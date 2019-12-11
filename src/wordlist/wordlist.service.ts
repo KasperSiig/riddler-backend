@@ -86,6 +86,11 @@ export class WordlistService {
 		});
 	}
 
+	/**
+	 * Finds wordlist by a given name
+	 *
+	 * @param name Name to find Wordlist by
+	 */
 	private async getWordlistByName(name: string) {
 		return this.model.findOne({ name });
 	}
