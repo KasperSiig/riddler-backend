@@ -5,11 +5,12 @@ import {
 	Body,
 	Delete,
 	Param,
-	Put,
+	Put, UseInterceptors, UploadedFile,
 } from '@nestjs/common';
 import { Wordlist } from './interfaces/wordlist.interface';
 import { WordlistService } from './wordlist.service';
 import { DocumentQuery } from 'mongoose';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('wordlist')
 export class WordlistController {
@@ -20,8 +21,15 @@ export class WordlistController {
 	 * @param wordlist Wordlist to create
 	 */
 	@Post('')
-	create(@Body() wordlist: Wordlist): Promise<Wordlist> {
-		return this.wordlistSvc.create(wordlist);
+	@UseInterceptors(FileInterceptor('file'))
+	async create(@Body() body: any, @UploadedFile() file) {
+		try {
+			await this.wordlistSvc.create(JSON.parse(body.wordlist) as Wordlist, file);
+			console.log(file);
+		} catch (err) {
+			console.log(err);
+			throw err;
+		}
 	}
 
 	/**

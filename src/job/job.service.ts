@@ -41,7 +41,7 @@ export class JobService {
 		if (!this.validFormats.includes(job.format))
 			throw new BadRequestException('Format not valid', job.format);
 		this.fileSvc.validateOne(job.wordlist.path);
-		if (!file) throw new BadRequestException('No file chosen', file.toString());
+		if (!file) throw new BadRequestException('No file chosen', file);
 
 		const jobSaved = await this.create(job);
 		const passwdFile = jobSaved.directory + 'passwd.txt';
