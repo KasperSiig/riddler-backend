@@ -1,9 +1,11 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { of } from 'rxjs';
+import { FileModule } from '../file';
 import { WordlistSchema } from './schemas/wordlist.schema';
 import { WordlistController } from './wordlist.controller';
 import { WordlistService } from './wordlist.service';
-import { of } from 'rxjs';
+import { FileNotFoundException } from '../exceptions';
 import { Wordlist } from './interfaces/wordlist.interface';
 
 describe('Wordlist Controller', () => {
@@ -22,6 +24,7 @@ describe('Wordlist Controller', () => {
 				MongooseModule.forFeature([
 					{ name: 'Wordlist', schema: WordlistSchema },
 				]),
+				FileModule,
 			],
 			controllers: [WordlistController],
 			providers: [WordlistService],
@@ -53,7 +56,7 @@ describe('Wordlist Controller', () => {
 			.spyOn(wordlistSvc, 'create')
 			.mockImplementation((): any => of('').toPromise());
 
-		controller.create({} as any);
+		controller.create({ wordlist: JSON.stringify({}) }, '');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 
@@ -71,5 +74,16 @@ describe('Wordlist Controller', () => {
 			.mockImplementation((): any => of('').toPromise());
 		controller.updateOne('test', {} as any);
 		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should throw error', async () => {
+		jest.spyOn(wordlistSvc, 'create').mockImplementation(() => {
+			throw new FileNotFoundException('test');
+		});
+		try {
+			await controller.create({ wordlist: JSON.stringify({} as Wordlist) }, '');
+		} catch (err) {
+			expect(err.toString()).toBe('Error: File test Not Found');
+		}
 	});
 });

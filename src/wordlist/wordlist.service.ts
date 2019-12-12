@@ -1,12 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { DocumentQuery, Model, Types } from 'mongoose';
 import { Wordlist } from './interfaces/wordlist.interface';
+import { FileService } from '../file';
 
 @Injectable()
 export class WordlistService {
 	constructor(
 		@InjectModel('Wordlist') public readonly model: Model<Wordlist>,
+		private fileSvc: FileService,
 	) {}
 
 	/**
@@ -30,8 +32,19 @@ export class WordlistService {
 	 *
 	 * @param wordlist Wordlist to create
 	 */
-	create(wordlist: Wordlist): Promise<Wordlist> {
+	async create(wordlist: Wordlist, file: any): Promise<Wordlist> {
 		wordlist._id = new Types.ObjectId().toString();
+		wordlist.path = process.env.JTR_ROOT + 'wordlist/' + wordlist._id + '.txt';
+
+		// validation
+		if (!wordlist.name)
+			throw new BadRequestException('Name required', wordlist.name);
+		if (await this.getWordlistByName(wordlist.name))
+			throw new BadRequestException('Wordlist with that name already exists', wordlist.name);
+		if (!file) throw new BadRequestException('No file chosen', file);
+
+		this.fileSvc.mkdir(process.env.JTR_ROOT + 'wordlist/');
+		await this.fileSvc.write(wordlist.path, file.buffer.toString());
 		return this.model
 			.findOneAndUpdate({ _id: wordlist._id }, wordlist, {
 				upsert: true,
@@ -39,6 +52,7 @@ export class WordlistService {
 			})
 			.exec();
 	}
+
 	/**
 	 * Gets default wordlist
 	 */
@@ -66,5 +80,14 @@ export class WordlistService {
 		return this.model.findOneAndUpdate({ _id }, wordlist, {
 			new: true,
 		});
+	}
+
+	/**
+	 * Finds wordlist by a given name
+	 *
+	 * @param name Name to find Wordlist by
+	 */
+	private async getWordlistByName(name: string) {
+		return this.model.findOne({ name });
 	}
 }
