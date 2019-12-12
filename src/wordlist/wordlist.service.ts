@@ -40,12 +40,8 @@ export class WordlistService {
 		if (!wordlist.name)
 			throw new BadRequestException('Name required', wordlist.name);
 		if (await this.getWordlistByName(wordlist.name))
-			throw new BadRequestException(
-				'Wordlist with that name already exists',
-				wordlist.name,
-			);
-		if (!file)
-			throw new BadRequestException('No file chosen', file);
+			throw new BadRequestException('Wordlist with that name already exists', wordlist.name);
+		if (!file) throw new BadRequestException('No file chosen', file);
 
 		this.fileSvc.mkdir(process.env.JTR_ROOT + 'wordlist/');
 		await this.fileSvc.write(wordlist.path, file.buffer.toString());

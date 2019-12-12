@@ -4,6 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { WordlistSchema } from './schemas/wordlist.schema';
 import { Wordlist } from './interfaces/wordlist.interface';
 import { FileModule } from '../file';
+import { Job } from '../job';
+import any = jasmine.any;
 
 describe('WordlistService', () => {
 	let service: WordlistService;
@@ -86,5 +88,57 @@ describe('WordlistService', () => {
 		expect((await service.getOne(wordlistCreated._id)).toObject()).toEqual(
 			wordlistCreated,
 		);
+	});
+
+	it('should throw an error on name required', async () => {
+		try {
+			await service.create(
+				{
+					name: '',
+					path: 'src/job/test/files/wordlist.txt',
+				} as Wordlist,
+				'',
+			);
+		} catch (err) {
+			expect(err.toString()).toBe(
+				'Error: {"statusCode":400,"error":"","message":"Name required"}',
+			);
+		}
+	});
+
+	it('should throw error on existing name', async () => {
+		const newWordlist = {
+			name: 'test',
+		} as Wordlist;
+		await service.create(newWordlist, { buffer: '' });
+
+		try {
+			await service.create(
+				{
+					name: 'test',
+				} as Wordlist,
+				{ buffer: '' },
+			);
+		} catch (err) {
+			expect(err.toString()).toBe(
+				'Error: {"statusCode":400,"error":"test","message":"Wordlist with that name already exists"}',
+			);
+		}
+	});
+
+	it('should throw error if no file is chosen', async () => {
+		try {
+			await service.create(
+				{
+					name: 'test',
+					path: null,
+				} as Wordlist,
+				'',
+			);
+		} catch (err) {
+			expect(err.toString()).toBe(
+				'Error: {"statusCode":400,"error":"","message":"No file chosen"}',
+			);
+		}
 	});
 });

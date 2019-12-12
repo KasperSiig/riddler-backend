@@ -25,9 +25,7 @@ export class WordlistController {
 	async create(@Body() body: any, @UploadedFile() file) {
 		try {
 			await this.wordlistSvc.create(JSON.parse(body.wordlist) as Wordlist, file);
-			console.log(file);
 		} catch (err) {
-			console.log(err);
 			throw err;
 		}
 	}

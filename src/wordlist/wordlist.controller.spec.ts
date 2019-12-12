@@ -5,6 +5,8 @@ import { FileModule } from '../file';
 import { WordlistSchema } from './schemas/wordlist.schema';
 import { WordlistController } from './wordlist.controller';
 import { WordlistService } from './wordlist.service';
+import { FileNotFoundException } from '../exceptions';
+import { Wordlist } from './interfaces/wordlist.interface';
 
 describe('Wordlist Controller', () => {
 	let controller: WordlistController;
@@ -72,5 +74,16 @@ describe('Wordlist Controller', () => {
 			.mockImplementation((): any => of('').toPromise());
 		controller.updateOne('test', {} as any);
 		expect(spy).toHaveBeenCalledTimes(1);
+	});
+
+	it('should throw error', async () => {
+		jest.spyOn(wordlistSvc, 'create').mockImplementation(() => {
+			throw new FileNotFoundException('test');
+		});
+		try {
+			await controller.create({ wordlist: JSON.stringify({} as Wordlist) }, '');
+		} catch (err) {
+			expect(err.toString()).toBe('Error: File test Not Found');
+		}
 	});
 });
