@@ -6,6 +6,7 @@ export const JobSchema = new Schema({
 	name: String,
 	status: String,
 	format: String,
+	rule: String,
 	wordlist: WordlistSchema,
 	directory: String,
 	time: Schema.Types.Date,

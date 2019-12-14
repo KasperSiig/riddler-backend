@@ -34,8 +34,8 @@ describe('Wordlist Controller', () => {
 		wordlistSvc = module.get<WordlistService>(WordlistService);
 	});
 
-	afterEach(() => {
-		module.close();
+	afterEach(async () => {
+		await module.close();
 	});
 
 	it('should be defined', () => {

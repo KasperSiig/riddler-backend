@@ -1,5 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { appendFile, copy as fsCopy, readFile, existsSync, mkdirpSync } from 'fs-extra';
+import {
+	appendFile,
+	copy as fsCopy,
+	readFile,
+	existsSync,
+	mkdirpSync,
+} from 'fs-extra';
 import { FileNotFoundException } from '../exceptions';
 
 @Injectable()
@@ -18,7 +24,7 @@ export class FileService {
 	 * @param dest Where to write to
 	 * @param data What to write
 	 */
-	write(dest: string, data: string): Promise<void> {
+	append(dest: string, data: string): Promise<void> {
 		return appendFile(dest, data);
 	}
 

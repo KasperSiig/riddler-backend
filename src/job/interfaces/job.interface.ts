@@ -6,6 +6,7 @@ export interface Job extends Document {
 	name: string;
 	status?: STATUS;
 	format?: string;
+	rule?: string;
 	wordlist?: Wordlist;
 	directory?: string;
 	time?: number;

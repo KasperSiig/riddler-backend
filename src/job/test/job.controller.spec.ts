@@ -45,8 +45,8 @@ describe('Job Controller', () => {
 		jobSvc = module.get<JobService>(JobService);
 	});
 
-	afterEach(() => {
-		module.close();
+	afterEach(async () => {
+		await module.close();
 	});
 
 	it('should be defined', async () => {
