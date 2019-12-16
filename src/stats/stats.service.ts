@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { FileService } from '../file';
-import { JobService } from '../job';
+import { JobDataService } from '../job';
 import { HelperService } from './helper.service';
 
 @Injectable()
 export class StatsService {
 	constructor(
-		private jobSvc: JobService,
+		private jobDataSvc: JobDataService,
 		private fileSvc: FileService,
 		private helper: HelperService,
 	) {}
@@ -57,7 +57,7 @@ export class StatsService {
 		cracked: number;
 		percentage: number;
 	}> {
-		const job = await this.jobSvc.getJob(id);
+		const job = await this.jobDataSvc.getOne(id);
 
 		const hashes = this.helper.parsePasswd(
 			await this.fileSvc.read(job.directory + 'passwd.txt'),
@@ -115,13 +115,14 @@ export class StatsService {
 	 *
 	 * @param id Id of job
 	 * @param password Password to check frequency on
+	 * @param potFile Optional pot file to use
 	 */
 	async getFreqCount(
 		id: string,
 		password: string,
 		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 	) {
-		const job = await this.jobSvc.getJob(id);
+		const job = await this.jobDataSvc.getOne(id);
 		const passwdHash = await this.getpasswdHash(password, potFile);
 		const passwdParsed = this.helper.parsePasswd(
 			await this.fileSvc.read(job.directory + 'passwd.txt'),
@@ -136,6 +137,7 @@ export class StatsService {
 	 * Get top 10 most used passwords
 	 *
 	 * @param id Id of job to get stats by
+	 * @param filter Arrow function to filter users on
 	 * @param potFile Optional potfile to use
 	 */
 	async getTopTenStats(
@@ -143,7 +145,7 @@ export class StatsService {
 		filter = (p: any) => p,
 		potFile: string = process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 	) {
-		const job = await this.jobSvc.getJob(id);
+		const job = await this.jobDataSvc.getOne(id);
 		const passwdParsed = this.helper.parsePasswd(
 			await this.fileSvc.read(job.directory + 'passwd.txt'),
 			filter,

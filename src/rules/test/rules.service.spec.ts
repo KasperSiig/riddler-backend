@@ -1,13 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FileModule, FileService } from '../../file';
-import { RulesService } from '../rules.service';
 import { writeFileSync } from 'fs-extra';
+import { FileModule } from '../../file';
+import { RulesService } from '../rules.service';
 
 describe('RulesService', () => {
 	let service: RulesService;
 	let envBak: string;
 	let johnBak: string;
-	let fileSvc: FileService;
 
 	beforeAll(() => {
 		envBak = process.env.JTR_ROOT;
@@ -28,7 +27,6 @@ describe('RulesService', () => {
 		}).compile();
 
 		service = module.get<RulesService>(RulesService);
-		fileSvc = module.get<FileService>(FileService);
 	});
 
 	it('should be defined', () => {

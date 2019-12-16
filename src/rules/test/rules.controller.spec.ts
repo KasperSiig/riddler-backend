@@ -1,11 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { FileModule } from '../../file';
 import { RulesController } from '../rules.controller';
 import { RulesService } from '../rules.service';
-import { FileModule } from '../../file';
 
 describe('Rules Controller', () => {
-	let controller: RulesController;
 	let module: TestingModule;
+	let controller: RulesController;
+
 	let rulesSvc: RulesService;
 
 	beforeEach(async () => {
@@ -32,6 +33,7 @@ describe('Rules Controller', () => {
 			.spyOn(rulesSvc, 'getAll')
 			.mockImplementation((): any => {});
 		controller.getAll();
+
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 });

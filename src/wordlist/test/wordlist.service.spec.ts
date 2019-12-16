@@ -1,15 +1,17 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { WordlistService } from './wordlist.service';
 import { MongooseModule } from '@nestjs/mongoose';
-import { WordlistSchema } from './schemas/wordlist.schema';
-import { Wordlist } from './interfaces/wordlist.interface';
-import { FileModule } from '../file';
-import { Job } from '../job';
-import any = jasmine.any;
+import { Test, TestingModule } from '@nestjs/testing';
+import { FileModule } from '../../file';
+import { HelperService } from '../helper.service';
+import { Wordlist } from '../interfaces/wordlist.interface';
+import { WordlistSchema } from '../schemas/wordlist.schema';
+import { WordlistDataService } from '../wordlist-data.service';
+import { WordlistService } from '../wordlist.service';
 
 describe('WordlistService', () => {
-	let service: WordlistService;
 	let module: TestingModule;
+	let service: WordlistService;
+
+	let dataSvc: WordlistDataService;
 
 	beforeEach(async () => {
 		module = await Test.createTestingModule({
@@ -24,14 +26,15 @@ describe('WordlistService', () => {
 				]),
 				FileModule,
 			],
-			providers: [WordlistService],
+			providers: [WordlistService, WordlistDataService, HelperService],
 		}).compile();
 
 		service = module.get<WordlistService>(WordlistService);
+		dataSvc = module.get<WordlistDataService>(WordlistDataService);
 	});
 
 	afterEach(async () => {
-		await service.model.deleteMany({});
+		await dataSvc.model.deleteMany({});
 		module.close();
 	});
 
@@ -44,7 +47,7 @@ describe('WordlistService', () => {
 		const wordlistCreated = await service.create(wordlist as Wordlist, {
 			buffer: '',
 		});
-		const wordlistRtn = await service.getAll();
+		const wordlistRtn = await dataSvc.getAll();
 		expect(wordlistRtn[0].toObject()).toEqual(wordlistCreated.toObject());
 	});
 
@@ -62,11 +65,11 @@ describe('WordlistService', () => {
 		const wordlistCreated = await service.create(wordlist as Wordlist, {
 			buffer: '',
 		});
-		expect((await service.getAll()).map(o => o.toObject())).toEqual([
+		expect((await dataSvc.getAll()).map(o => o.toObject())).toEqual([
 			wordlistCreated.toObject(),
 		]);
-		service.deleteOne(wordlistCreated._id).then();
-		expect((await service.getAll()).length).toBe(0);
+		dataSvc.deleteOne(wordlistCreated._id).then();
+		expect((await dataSvc.getAll()).length).toBe(0);
 	});
 
 	it('should update a wordlist', async () => {
@@ -78,14 +81,14 @@ describe('WordlistService', () => {
 		let wordlistCreated = (await service.create(wordlist, {
 			buffer: '',
 		})).toObject();
-		expect((await service.getAll()).map(o => o.toObject())).toEqual([
+		expect((await dataSvc.getAll()).map(o => o.toObject())).toEqual([
 			wordlistCreated,
 		]);
 
 		wordlistCreated = { ...wordlistCreated, name: 'update' };
 
-		await service.updateOne(wordlistCreated._id, wordlistCreated);
-		expect((await service.getOne(wordlistCreated._id)).toObject()).toEqual(
+		await dataSvc.updateOne(wordlistCreated._id, wordlistCreated);
+		expect((await dataSvc.getOne(wordlistCreated._id)).toObject()).toEqual(
 			wordlistCreated,
 		);
 	});
@@ -107,10 +110,10 @@ describe('WordlistService', () => {
 	});
 
 	it('should throw error on existing name', async () => {
-		const newWordlist = {
+		const wordlist = {
 			name: 'test',
 		} as Wordlist;
-		await service.create(newWordlist, { buffer: '' });
+		await service.create(wordlist, { buffer: '' });
 
 		try {
 			await service.create(

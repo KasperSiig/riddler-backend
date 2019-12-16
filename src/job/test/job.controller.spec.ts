@@ -1,30 +1,38 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
-import { execFile } from 'child_process';
+import { FileNotFoundException } from '../../exceptions';
 import { FileModule } from '../../file';
 import { Job } from '../../job';
+import { WordlistModule } from '../../wordlist';
+import { STATUS } from '../enums/status.enum';
+import { HelperService } from '../helper.service';
+import { JobDataService } from '../job-data.service';
 import { JobController } from '../job.controller';
 import { JobService } from '../job.service';
 import { JobSchema } from './../schemas/job.schema';
-import { of } from 'rxjs';
-import { STATUS } from '../enums/status.enum';
-import { FileNotFoundException } from '../../exceptions';
-import { WordlistModule } from '../../wordlist';
 
 describe('Job Controller', () => {
-	let controller: JobController;
-	let jobSvc: JobService;
 	let module: TestingModule;
-	let envBak: string;
+	let controller: JobController;
+
+	let rootBak: string;
+	let johnBak: string;
+
+	let jobSvc: JobService;
+	let dataSvc: JobDataService;
 
 	beforeAll(() => {
-		envBak = process.env.JTR_ROOT;
+		rootBak = process.env.JTR_ROOT;
 		process.env.JTR_ROOT = '/tmp/';
+		johnBak = process.env.JTR_EXECUTABLE;
+		process.env.JTR_EXECUTABLE = '/tmp/john';
 	});
 
 	afterAll(() => {
-		process.env.JTR_ROOT = envBak;
+		process.env.JTR_ROOT = rootBak;
+		process.env.JTR_EXECUTABLE = johnBak;
 	});
+
 	beforeEach(async () => {
 		module = await Test.createTestingModule({
 			imports: [
@@ -37,60 +45,56 @@ describe('Job Controller', () => {
 				MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]),
 				WordlistModule,
 			],
-			providers: [JobService],
+			providers: [JobService, HelperService, JobDataService],
 			controllers: [JobController],
 		}).compile();
 
 		controller = module.get<JobController>(JobController);
 		jobSvc = module.get<JobService>(JobService);
+		dataSvc = module.get<JobDataService>(JobDataService);
 	});
 
 	afterEach(async () => {
 		await module.close();
 	});
 
-	it('should be defined', async () => {
+	it('should be defined', () => {
 		expect(controller).toBeDefined();
 	});
 
 	it('should call service to start job', async () => {
-		let job = {} as Job;
-		job = await jobSvc.update(job);
-		jest
+		const job = await dataSvc.updateOne({} as Job);
+		const spy = jest
 			.spyOn(jobSvc, 'startNew')
-			.mockImplementation(() => of(execFile('ls')).toPromise());
+			.mockImplementation((): any => {});
 
 		controller.startNew({ job: JSON.stringify(job) }, '');
-		expect(jobSvc.startNew).toHaveBeenCalledTimes(1);
+		expect(spy).toHaveBeenCalledTimes(1);
 	});
 
 	it('should call service to get details', () => {
-		const spy = jest.spyOn(jobSvc, 'getAll');
+		const spy = jest.spyOn(dataSvc, 'getAll');
 
 		controller.getJobs();
 		expect(spy).toBeCalledTimes(1);
 	});
 
 	it('should get one job', async () => {
-		let job = {} as Job;
-		job = await jobSvc.create(job);
+		const job = await jobSvc.create({} as Job);
 
-		const spy = jest.spyOn(jobSvc, 'getJob');
+		const spy = jest.spyOn(dataSvc, 'getOne').mockImplementation((): any => {});
 
-		await controller.get(job._id);
+		controller.getOne(job._id);
 
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 
 	it('should get all finished jobs', async () => {
-		let job = {
-			status: STATUS.FINISHED,
-		} as Job;
-		job = await jobSvc.create(job);
+		await jobSvc.create({ status: STATUS.FINISHED } as Job);
 
-		const spy = jest.spyOn(jobSvc, 'getByStatus');
+		const spy = jest.spyOn(dataSvc, 'getManyByStatus');
 
-		await controller.getByStatus(STATUS.FINISHED);
+		controller.getByStatus(STATUS.FINISHED);
 
 		expect(spy).toHaveBeenCalledTimes(1);
 	});

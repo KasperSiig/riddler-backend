@@ -8,7 +8,7 @@ export class RulesService {
 	/**
 	 * Gets all rules
 	 */
-	async getAll() {
+	async getAll(): Promise<string[]> {
 		const conf = await this.fileSvc.read(process.env.JTR_EXECUTABLE + '.conf');
 		return conf
 			.toString()
