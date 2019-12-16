@@ -4,10 +4,11 @@ import { JobDataService } from '../job-data.service';
 import { JobSchema } from '../schemas/job.schema';
 
 describe('JobDataService', () => {
+	let module: TestingModule;
 	let service: JobDataService;
 
 	beforeEach(async () => {
-		const module: TestingModule = await Test.createTestingModule({
+		module = await Test.createTestingModule({
 			imports: [
 				MongooseModule.forRoot(process.env.MONGO_URL, {
 					useNewUrlParser: true,
@@ -20,6 +21,10 @@ describe('JobDataService', () => {
 		}).compile();
 
 		service = module.get<JobDataService>(JobDataService);
+	});
+
+	afterEach(async () => {
+		await module.close();
 	});
 
 	it('should be defined', () => {

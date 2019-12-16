@@ -11,7 +11,6 @@ import {
 } from '../../job';
 import { HelperService } from '../helper.service';
 import { StatsService } from '../stats.service';
-import { doesNotReject } from 'assert';
 
 describe('StatsService', () => {
 	let module: TestingModule;

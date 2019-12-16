@@ -5,10 +5,11 @@ import { WordlistSchema } from '../schemas/wordlist.schema';
 import { WordlistDataService } from '../wordlist-data.service';
 
 describe('HelperService', () => {
+	let module: TestingModule;
 	let service: HelperService;
 
 	beforeEach(async () => {
-		const module: TestingModule = await Test.createTestingModule({
+		module = await Test.createTestingModule({
 			imports: [
 				MongooseModule.forRoot(process.env.MONGO_URL, {
 					useNewUrlParser: true,
@@ -23,6 +24,10 @@ describe('HelperService', () => {
 		}).compile();
 
 		service = module.get<HelperService>(HelperService);
+	});
+
+	afterEach(async () => {
+		await module.close();
 	});
 
 	it('should be defined', () => {

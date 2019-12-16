@@ -6,10 +6,11 @@ import { JobDataService } from '../job-data.service';
 import { JobSchema } from '../schemas/job.schema';
 
 describe('HelperService', () => {
+	let module: TestingModule;
 	let service: HelperService;
 
 	beforeEach(async () => {
-		const module: TestingModule = await Test.createTestingModule({
+		module = await Test.createTestingModule({
 			imports: [
 				FileModule,
 				MongooseModule.forRoot(process.env.MONGO_URL, {
@@ -23,6 +24,10 @@ describe('HelperService', () => {
 		}).compile();
 
 		service = module.get<HelperService>(HelperService);
+	});
+
+	afterEach(async () => {
+		await module.close();
 	});
 
 	it('should be defined', () => {
