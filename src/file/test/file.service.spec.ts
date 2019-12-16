@@ -30,7 +30,7 @@ describe('FileService', () => {
 		const spy = jest
 			.spyOn(fs, 'appendFile')
 			.mockImplementation(() => new Promise(() => {}));
-		service.write('', '');
+		service.append('', '');
 		expect(spy).toHaveBeenCalled();
 	});
 

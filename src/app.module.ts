@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { StatsModule } from './stats/stats.module';
 import { ExceptionsModule } from './exceptions/exceptions.module';
 import { WordlistModule } from './wordlist';
+import { RulesModule } from './rules';
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { WordlistModule } from './wordlist';
 		StatsModule,
 		ExceptionsModule,
 		WordlistModule,
+		RulesModule,
 	],
 })
 export class AppModule {}

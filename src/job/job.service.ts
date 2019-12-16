@@ -28,6 +28,7 @@ export class JobService {
 		job.format = job.format || 'nt';
 		job.wordlist = job.wordlist || (await this.wordlistSvc.getDefault());
 		job.time = Date.now();
+		job.rule = job.rule || 'None';
 
 		// Validation
 		if (!job.name) throw new BadRequestException('Name required', job.name);
@@ -46,13 +47,15 @@ export class JobService {
 		const jobSaved = await this.create(job);
 		const passwdFile = jobSaved.directory + 'passwd.txt';
 		this.fileSvc.mkdir(jobSaved.directory);
-		await this.fileSvc.write(passwdFile, file.buffer.toString());
+		await this.fileSvc.append(passwdFile, file.buffer.toString());
 
-		const child = spawn(process.env.JTR_EXECUTABLE, [
+		const command = [
 			passwdFile,
 			'--format=' + jobSaved.format,
 			'--wordlist=' + jobSaved.wordlist.path,
-		]);
+			'--rules=' + job.rule,
+		];
+		const child = spawn(process.env.JTR_EXECUTABLE, command);
 
 		this.startListeners(jobSaved, child);
 
@@ -68,11 +71,11 @@ export class JobService {
 	 */
 	startListeners(job: Job, child: ChildProcess): void {
 		child.stdout.on('data', data => {
-			this.fileSvc.write(job.directory + 'stdout.txt', data.toString());
+			this.fileSvc.append(job.directory + 'stdout.txt', data.toString());
 		});
 
 		child.stderr.on('data', data => {
-			this.fileSvc.write(job.directory + 'stderr.txt', data.toString());
+			this.fileSvc.append(job.directory + 'stderr.txt', data.toString());
 		});
 
 		child.on('exit', () => {

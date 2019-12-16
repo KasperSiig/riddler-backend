@@ -42,8 +42,8 @@ describe('StatsService', () => {
 		fileSvc = module.get<FileService>(FileService);
 	});
 
-	afterEach(() => {
-		module.close();
+	afterEach(async () => {
+		await module.close();
 	});
 
 	it('should be defined', () => {
@@ -53,7 +53,7 @@ describe('StatsService', () => {
 	it('should return stats for admins cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.write(
+		await fileSvc.append(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);
@@ -75,7 +75,7 @@ describe('StatsService', () => {
 	it('should return stats for all users cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.write(
+		await fileSvc.append(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);
@@ -97,7 +97,7 @@ describe('StatsService', () => {
 	it('should return a comma seperated string of stats', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.write(
+		await fileSvc.append(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);
@@ -132,7 +132,7 @@ describe('StatsService', () => {
 	it('should return correct frequency count', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.write(
+		await fileSvc.append(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);
@@ -150,7 +150,7 @@ describe('StatsService', () => {
 	it('should return correct top 10 stats', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.write(
+		await fileSvc.append(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);

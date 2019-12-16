@@ -3,13 +3,11 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as child_process from 'child_process';
 import { execFile } from 'child_process';
 import { FileModule, FileService } from '../../file';
-import { JobService } from '../job.service';
-import { JobSchema } from '../schemas/job.schema';
+import { WordlistModule } from '../../wordlist';
 import { STATUS } from '../enums/status.enum';
 import { Job } from '../interfaces/job.interface';
-import { WordlistModule } from '../../wordlist';
-import any = jasmine.any;
-import { log } from 'util';
+import { JobService } from '../job.service';
+import { JobSchema } from '../schemas/job.schema';
 
 describe('JobService', () => {
 	let service: JobService;
@@ -54,12 +52,12 @@ describe('JobService', () => {
 		spawnSpy = jest
 			.spyOn(child_process, 'spawn')
 			.mockImplementation(() => execFile('ls'));
+		await service.model.deleteMany({});
 	});
 
 	afterEach(async () => {
-		await service.model.deleteMany({});
+		await module.close();
 		spawnSpy.mockRestore();
-		module.close();
 	});
 
 	it('should be defined', () => {
@@ -77,7 +75,7 @@ describe('JobService', () => {
 	it('should have all added listeners', async done => {
 		const child = execFile('ls', ['&&', 'ls', '>', '/dev/stderr']);
 		service.startListeners(job, child);
-		jest.spyOn(fileSvc, 'write');
+		jest.spyOn(fileSvc, 'append');
 
 		// There's always an implicit listener, hence why 2 listeners is expected
 		child.on('exit', () => {
