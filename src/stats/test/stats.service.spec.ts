@@ -66,7 +66,7 @@ describe('StatsService', () => {
 		expect(service).toBeDefined();
 	});
 
-	it('should return stats for admins cracked', async done => {
+	it('should return stats for admins cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
 		writeFileSync(
@@ -82,10 +82,9 @@ describe('StatsService', () => {
 			cracked: 1,
 			percentage: 33,
 		});
-		done();
 	});
 
-	it('should return stats for all users cracked', async done => {
+	it('should return stats for all users cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
 		writeFileSync(
@@ -100,10 +99,9 @@ describe('StatsService', () => {
 			cracked: 1,
 			percentage: 25,
 		});
-		done();
 	});
 
-	it('should return a comma seperated string of stats', async done => {
+	it('should return a comma seperated string of stats', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
 		writeFileSync(
@@ -119,20 +117,18 @@ describe('StatsService', () => {
 				'Admins,3,1,33,#Password:1\n' +
 				'All,4,1,25,#Password:1\n',
 		);
-		done();
 	});
 
-	it('should return 0 if pot file is empty', async done => {
+	it('should return 0 if pot file is empty', async () => {
 		const job = await jobSvc.create({} as Job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
 		await jobDataSvc.updateOne(job);
 		const potFile = 'src/stats/test/files/john.empty.pot';
 		const stats = await service.getPercentageCracked(job._id, potFile);
 		expect(stats).toEqual({ total: 4, cracked: 0, percentage: 0 });
-		done();
 	});
 
-	it('should return correct frequency count', async done => {
+	it('should return correct frequency count', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
 		writeFileSync(
@@ -144,10 +140,9 @@ describe('StatsService', () => {
 		await jobDataSvc.updateOne(job);
 		const count = await service.getFreqCount(job._id, '#Password');
 		expect(count).toBe(1);
-		done();
 	});
 
-	it('should return correct top 10 stats', async done => {
+	it('should return correct top 10 stats', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
 		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
 		writeFileSync(
@@ -159,6 +154,5 @@ describe('StatsService', () => {
 		await jobDataSvc.updateOne(job);
 		const result = await service.getTopTenStats(job._id);
 		expect(result).toEqual([{ password: '#Password', count: 1 }]);
-		done();
 	});
 });

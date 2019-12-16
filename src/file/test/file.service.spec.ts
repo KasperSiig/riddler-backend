@@ -32,9 +32,9 @@ describe('FileService', () => {
 		expect(spy).toHaveBeenCalled();
 	});
 
-	it('should throw error if file does not exist', () => {
+	it('should throw error if file does not exist', async () => {
 		try {
-			service.validateOne('/opt/nofile');
+			await service.validateOne('/opt/nofile');
 		} catch (err) {
 			expect(err.toString()).toBe('Error: File /opt/nofile Not Found');
 		}
