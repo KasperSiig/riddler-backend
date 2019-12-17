@@ -6,6 +6,12 @@ import { WordlistDataService } from './wordlist-data.service';
 export class HelperService {
 	constructor(private dataSvc: WordlistDataService) {}
 
+	/**
+	 * Validates a wordlist
+	 *
+	 * @param wordlist Wordlist to validate
+	 * @param file File to validate
+	 */
 	async validateWordlist(wordlist: Wordlist, file: any) {
 		if (!wordlist.name)
 			throw new BadRequestException('Name required', wordlist.name);
