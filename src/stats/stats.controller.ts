@@ -53,7 +53,7 @@ export class StatsController {
 	 * @param id Id of job to get frequency on
 	 */
 	@Get(':id/frequency')
-	async passwdHash(@Query('password') password, @Param('id') id) {
+	async getFreq(@Query('password') password, @Param('id') id) {
 		return { count: await this.statsSvc.getFreqCount(id, password) };
 	}
 

@@ -1,16 +1,17 @@
+import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { of } from 'rxjs';
+import { FileModule } from '../../file';
+import { JobModule, JobSchema } from '../../job';
+import { HelperService } from '../helper.service';
 import { StatsController } from '../stats.controller';
 import { StatsService } from '../stats.service';
-import { of } from 'rxjs';
-import { JobModule, JobSchema } from '../../job';
-import { MongooseModule } from '@nestjs/mongoose';
-import { FileModule } from '../../file';
-import { HelperService } from '../helper.service';
 
 describe('Stats Controller', () => {
-	let controller: StatsController;
-	let statsSvc: StatsService;
 	let module: TestingModule;
+	let controller: StatsController;
+
+	let statsSvc: StatsService;
 
 	beforeEach(async () => {
 		module = await Test.createTestingModule({
@@ -32,8 +33,8 @@ describe('Stats Controller', () => {
 		statsSvc = module.get<StatsService>(StatsService);
 	});
 
-	afterEach(() => {
-		module.close();
+	afterEach(async () => {
+		await module.close();
 	});
 
 	it('should be defined', () => {
@@ -44,8 +45,7 @@ describe('Stats Controller', () => {
 		const stats = { total: 0, cracked: 0, percentage: 0 };
 		const spy = jest
 			.spyOn(statsSvc, 'getAdminsCracked')
-			// tslint:disable-next-line: variable-name
-			.mockImplementation(_id => {
+			.mockImplementation(id => {
 				return of(stats).toPromise();
 			});
 
@@ -56,12 +56,9 @@ describe('Stats Controller', () => {
 
 	it('should call service for users cracked', async () => {
 		const stats = { total: 0, cracked: 0, percentage: 0 };
-		const spy = jest
-			.spyOn(statsSvc, 'getAllCracked')
-			// tslint:disable-next-line: variable-name
-			.mockImplementation(_id => {
-				return of(stats).toPromise();
-			});
+		const spy = jest.spyOn(statsSvc, 'getAllCracked').mockImplementation(id => {
+			return of(stats).toPromise();
+		});
 
 		const statsRtn = await controller.getAllCracked('id');
 		expect(spy).toHaveBeenCalledTimes(1);
@@ -80,7 +77,7 @@ describe('Stats Controller', () => {
 		const spy = jest
 			.spyOn(statsSvc, 'getFreqCount')
 			.mockImplementation((): any => {});
-		controller.passwdHash('Test123', '1');
+		controller.getFreq('Test123', '1');
 		expect(spy).toHaveBeenCalledTimes(1);
 	});
 

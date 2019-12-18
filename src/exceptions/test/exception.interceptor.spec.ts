@@ -1,7 +1,7 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { ExceptionInterceptor } from '../exception.interceptor';
 import { ExecutionContext } from '@nestjs/common';
-import { of, Observable } from 'rxjs';
+import { Test, TestingModule } from '@nestjs/testing';
+import { Observable, of } from 'rxjs';
+import { ExceptionInterceptor } from '../exception.interceptor';
 import { FileNotFoundException } from '../exceptions/file-not-found.exception';
 
 describe('Exception Interceptor', () => {
@@ -12,7 +12,12 @@ describe('Exception Interceptor', () => {
 		module = await Test.createTestingModule({
 			providers: [ExceptionInterceptor],
 		}).compile();
+
 		interceptor = module.get<ExceptionInterceptor>(ExceptionInterceptor);
+	});
+
+	afterEach(async () => {
+		await module.close();
 	});
 
 	it('should be defined', () => {
@@ -20,11 +25,19 @@ describe('Exception Interceptor', () => {
 	});
 
 	it('should throw an error', () => {
-		const handle = { handle: jest.fn(() => of(new FileNotFoundException('test'))) };
-		const result = interceptor.intercept({} as ExecutionContext, handle) as Observable<any>;
+		const next = {
+			handle: jest.fn(() => of(new FileNotFoundException('test'))),
+		};
+
+		const expected = next.handle;
+		const result = interceptor.intercept(
+			{} as ExecutionContext,
+			next,
+		) as Observable<any>;
+
 		result.subscribe(r => {
 			expect(r.toString()).toBe('Error: File test Not Found');
 		});
-		expect(handle.handle).toHaveBeenCalled();
+		expect(expected).toHaveBeenCalled();
 	});
 });

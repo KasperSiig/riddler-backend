@@ -1,10 +1,12 @@
-import { JobSchema } from './schemas/job.schema';
-import { MongooseModule } from '@nestjs/mongoose';
 import { Module } from '@nestjs/common';
-import { JobController } from './job.controller';
-import { JobService } from './job.service';
+import { MongooseModule } from '@nestjs/mongoose';
 import { FileModule } from '../file';
 import { WordlistModule } from '../wordlist';
+import { HelperService } from './helper.service';
+import { JobDataService } from './job-data.service';
+import { JobController } from './job.controller';
+import { JobService } from './job.service';
+import { JobSchema } from './schemas/job.schema';
 
 @Module({
 	imports: [
@@ -13,7 +15,7 @@ import { WordlistModule } from '../wordlist';
 		WordlistModule,
 	],
 	controllers: [JobController],
-	providers: [JobService],
-	exports: [JobService],
+	providers: [JobService, HelperService, JobDataService],
+	exports: [JobService, JobDataService],
 })
 export class JobModule {}

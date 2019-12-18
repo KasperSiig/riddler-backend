@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import {
 	appendFile,
 	copy as fsCopy,
-	readFile,
 	existsSync,
 	mkdirpSync,
+	readFile,
 } from 'fs-extra';
 import { FileNotFoundException } from '../exceptions';
 
@@ -41,7 +41,7 @@ export class FileService {
 	 * Validates that file exists
 	 * @param file File to validate
 	 */
-	validateOne(file: string) {
+	validateOne(file: string): void {
 		if (!existsSync(file)) throw new FileNotFoundException(file);
 	}
 
@@ -49,7 +49,7 @@ export class FileService {
 	 * Creates a directory
 	 * @param dir Directory to create
 	 */
-	mkdir(dir: string) {
+	mkdirSync(dir: string): void {
 		if (!existsSync(dir)) {
 			mkdirpSync(dir);
 		}

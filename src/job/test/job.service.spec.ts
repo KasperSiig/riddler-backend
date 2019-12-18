@@ -5,25 +5,32 @@ import { execFile } from 'child_process';
 import { FileModule, FileService } from '../../file';
 import { WordlistModule } from '../../wordlist';
 import { STATUS } from '../enums/status.enum';
+import { HelperService } from '../helper.service';
 import { Job } from '../interfaces/job.interface';
+import { JobDataService } from '../job-data.service';
 import { JobService } from '../job.service';
 import { JobSchema } from '../schemas/job.schema';
 
 describe('JobService', () => {
-	let service: JobService;
-	let fileSvc: FileService;
-	let job: any;
-	let spawnSpy: jest.SpyInstance;
-	let envBak: string;
 	let module: TestingModule;
+	let service: JobService;
+
+	let rootBak: string;
+	let johnBak: string;
+
+	let fileSvc: FileService;
+	let dataSvc: JobDataService;
 
 	beforeAll(() => {
-		envBak = process.env.JTR_ROOT;
+		rootBak = process.env.JTR_ROOT;
 		process.env.JTR_ROOT = '/tmp/';
+		johnBak = process.env.JTR_EXECUTABLE;
+		process.env.JTR_EXECUTABLE = '/tmp/john';
 	});
 
 	afterAll(() => {
-		process.env.JTR_ROOT = envBak;
+		process.env.JTR_ROOT = rootBak;
+		process.env.JTR_EXECUTABLE = johnBak;
 	});
 
 	beforeEach(async () => {
@@ -38,26 +45,18 @@ describe('JobService', () => {
 				MongooseModule.forFeature([{ name: 'Job', schema: JobSchema }]),
 				WordlistModule,
 			],
-			providers: [JobService],
+			providers: [JobService, HelperService, JobDataService],
 		}).compile();
 
 		service = module.get<JobService>(JobService);
 		fileSvc = module.get<FileService>(FileService);
-		job = {
-			file: 'src/job/test/files/passwd.txt',
-			name: 'test',
-			wordlist: { name: 'default', path: 'src/job/test/files/wordlist.txt' },
-		};
+		dataSvc = module.get<JobDataService>(JobDataService);
 
-		spawnSpy = jest
-			.spyOn(child_process, 'spawn')
-			.mockImplementation(() => execFile('ls'));
-		await service.model.deleteMany({});
+		await dataSvc.model.deleteMany({});
 	});
 
 	afterEach(async () => {
 		await module.close();
-		spawnSpy.mockRestore();
 	});
 
 	it('should be defined', () => {
@@ -65,17 +64,27 @@ describe('JobService', () => {
 	});
 
 	it('should spawn process', async done => {
-		const child = await service.startNew(job, { buffer: '' });
-		child.on('exit', () => {
-			expect(spawnSpy).toHaveBeenCalled();
+		const spy = jest
+			.spyOn(child_process, 'spawn')
+			.mockImplementation(() => execFile('ls'));
+
+		const job = {
+			name: 'test',
+			wordlist: { path: 'src/job/test/files/wordlist.txt' },
+		};
+
+		(await service.startNew(job as Job, {
+			buffer: '',
+		})).on('exit', () => {
+			expect(spy).toHaveBeenCalled();
 			done();
 		});
 	});
 
 	it('should have all added listeners', async done => {
-		const child = execFile('ls', ['&&', 'ls', '>', '/dev/stderr']);
-		service.startListeners(job, child);
-		jest.spyOn(fileSvc, 'append');
+		const child = execFile('ls');
+		service.startListeners({} as Job, child);
+		jest.spyOn(fileSvc, 'append').mockImplementation((): any => {});
 
 		// There's always an implicit listener, hence why 2 listeners is expected
 		child.on('exit', () => {
@@ -87,20 +96,17 @@ describe('JobService', () => {
 	});
 
 	it('should get one job', async () => {
-		const jobCreated = await service.create(job);
-		const jobRtn = await service.getJob(jobCreated._id);
+		const jobCreated = await service.create({} as Job);
+		const jobRtn = await dataSvc.getOne(jobCreated._id);
 
 		expect(jobCreated.toObject()).toEqual(jobRtn.toObject());
 	});
 
 	it('should get all finished jobs', async () => {
-		let newJob = {
-			status: STATUS.FINISHED,
-		} as Job;
-		newJob = await service.create(newJob);
+		const job = await service.create({ status: STATUS.FINISHED } as Job);
 
-		const jobRtn = await service.getByStatus(STATUS.FINISHED);
-		expect(jobRtn).toContainEqual(expect.objectContaining(newJob.toObject()));
+		const jobRtn = await dataSvc.getManyByStatus(STATUS.FINISHED);
+		expect(jobRtn).toContainEqual(expect.objectContaining(job.toObject()));
 	});
 
 	it('should throw error on wordlist', async () => {
@@ -123,23 +129,21 @@ describe('JobService', () => {
 		try {
 			await service.startNew(
 				{
-					name: '',
 					wordlist: { name: '', path: 'src/job/test/files/wordlist.txt' },
 				} as Job,
 				'',
 			);
 		} catch (err) {
 			expect(err.toString()).toBe(
-				'Error: {"statusCode":400,"error":"","message":"Name required"}',
+				'Error: {"statusCode":400,"error":"Bad Request","message":"Name required"}',
 			);
 		}
 	});
 
 	it('should throw error on existing name', async () => {
-		const newJob = {
+		await service.create({
 			name: 'test',
-		} as Job;
-		await service.create(newJob);
+		} as Job);
 
 		try {
 			await service.startNew(
@@ -177,14 +181,14 @@ describe('JobService', () => {
 			await service.startNew(
 				{
 					name: 'test',
-					format: 'ntlm',
+					format: 'invalid',
 					wordlist: { name: '', path: 'wordlist.txt' },
 				} as Job,
 				'',
 			);
 		} catch (err) {
 			expect(err.toString()).toBe(
-				'Error: {"statusCode":400,"error":"ntlm","message":"Format not valid"}',
+				'Error: {"statusCode":400,"error":"invalid","message":"Format not valid"}',
 			);
 		}
 	});
