@@ -1,20 +1,26 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
+	Controller,
 	Delete,
+	Get,
 	Param,
-	Put, UseInterceptors, UploadedFile,
+	Post,
+	Put,
+	UploadedFile,
+	UseInterceptors,
 } from '@nestjs/common';
-import { Wordlist } from './interfaces/wordlist.interface';
-import { WordlistService } from './wordlist.service';
-import { DocumentQuery } from 'mongoose';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { DocumentQuery } from 'mongoose';
+import { Wordlist } from './interfaces/wordlist.interface';
+import { WordlistDataService } from './wordlist-data.service';
+import { WordlistService } from './wordlist.service';
 
 @Controller('wordlist')
 export class WordlistController {
-	constructor(private wordlistSvc: WordlistService) {}
+	constructor(
+		private wordlistSvc: WordlistService,
+		private dataSvc: WordlistDataService,
+	) {}
 
 	/**
 	 * Creates wordlist
@@ -22,9 +28,12 @@ export class WordlistController {
 	 */
 	@Post('')
 	@UseInterceptors(FileInterceptor('file'))
-	async create(@Body() body: any, @UploadedFile() file) {
+	async create(@Body() body: any, @UploadedFile() file: any): Promise<void> {
 		try {
-			await this.wordlistSvc.create(JSON.parse(body.wordlist) as Wordlist, file);
+			await this.wordlistSvc.create(
+				JSON.parse(body.wordlist) as Wordlist,
+				file,
+			);
 		} catch (err) {
 			throw err;
 		}
@@ -35,7 +44,7 @@ export class WordlistController {
 	 */
 	@Get('')
 	getAll(): DocumentQuery<Wordlist[], Wordlist, {}> {
-		return this.wordlistSvc.getAll();
+		return this.dataSvc.getAll();
 	}
 
 	/**
@@ -46,7 +55,7 @@ export class WordlistController {
 	 */
 	@Put(':id')
 	updateOne(@Param('id') id: string, @Body() wordlist: Wordlist) {
-		this.wordlistSvc.updateOne(id, wordlist).then();
+		this.dataSvc.updateOne(id, wordlist).then();
 	}
 
 	/**
@@ -56,6 +65,6 @@ export class WordlistController {
 	 */
 	@Delete(':id')
 	delete(@Param('id') id: string) {
-		this.wordlistSvc.deleteOne(id).then();
+		this.dataSvc.deleteOne(id).then();
 	}
 }

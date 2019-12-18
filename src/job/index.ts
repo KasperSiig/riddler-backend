@@ -4,4 +4,4 @@ export * from './job.service';
 export * from './schemas/job.schema';
 export * from './interfaces/job.interface';
 export * from './enums/status.enum';
-export * from './dto/job.dto';
+export * from './job-data.service';

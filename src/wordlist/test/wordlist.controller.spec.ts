@@ -1,17 +1,21 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { of } from 'rxjs';
-import { FileModule } from '../file';
-import { WordlistSchema } from './schemas/wordlist.schema';
-import { WordlistController } from './wordlist.controller';
-import { WordlistService } from './wordlist.service';
-import { FileNotFoundException } from '../exceptions';
-import { Wordlist } from './interfaces/wordlist.interface';
+import { FileNotFoundException } from '../../exceptions';
+import { FileModule } from '../../file';
+import { HelperService } from '../helper.service';
+import { Wordlist } from '../interfaces/wordlist.interface';
+import { WordlistSchema } from '../schemas/wordlist.schema';
+import { WordlistDataService } from '../wordlist-data.service';
+import { WordlistController } from '../wordlist.controller';
+import { WordlistService } from '../wordlist.service';
 
 describe('Wordlist Controller', () => {
-	let controller: WordlistController;
 	let module: TestingModule;
+	let controller: WordlistController;
+
 	let wordlistSvc: WordlistService;
+	let dataSvc: WordlistDataService;
 
 	beforeEach(async () => {
 		module = await Test.createTestingModule({
@@ -27,11 +31,12 @@ describe('Wordlist Controller', () => {
 				FileModule,
 			],
 			controllers: [WordlistController],
-			providers: [WordlistService],
+			providers: [WordlistService, WordlistDataService, HelperService],
 		}).compile();
 
 		controller = module.get<WordlistController>(WordlistController);
 		wordlistSvc = module.get<WordlistService>(WordlistService);
+		dataSvc = module.get<WordlistDataService>(WordlistDataService);
 	});
 
 	afterEach(async () => {
@@ -43,9 +48,7 @@ describe('Wordlist Controller', () => {
 	});
 
 	it('should call service get all wordlists', () => {
-		const spy = jest.spyOn(wordlistSvc, 'getAll').mockImplementation(() => {
-			return wordlistSvc.model.find({});
-		});
+		const spy = jest.spyOn(dataSvc, 'getAll').mockImplementation((): any => {});
 
 		controller.getAll();
 		expect(spy).toHaveBeenCalledTimes(1);
@@ -54,7 +57,7 @@ describe('Wordlist Controller', () => {
 	it('should call service to create wordlist', () => {
 		const spy = jest
 			.spyOn(wordlistSvc, 'create')
-			.mockImplementation((): any => of('').toPromise());
+			.mockImplementation((): any => {});
 
 		controller.create({ wordlist: JSON.stringify({}) }, '');
 		expect(spy).toHaveBeenCalledTimes(1);
@@ -62,7 +65,7 @@ describe('Wordlist Controller', () => {
 
 	it('should call service to delete wordlist', () => {
 		const spy = jest
-			.spyOn(wordlistSvc, 'deleteOne')
+			.spyOn(dataSvc, 'deleteOne')
 			.mockImplementation((): any => of('').toPromise());
 		controller.delete({} as any);
 		expect(spy).toHaveBeenCalledTimes(1);
@@ -70,7 +73,7 @@ describe('Wordlist Controller', () => {
 
 	it('should call service to update wordlist', () => {
 		const spy = jest
-			.spyOn(wordlistSvc, 'updateOne')
+			.spyOn(dataSvc, 'updateOne')
 			.mockImplementation((): any => of('').toPromise());
 		controller.updateOne('test', {} as any);
 		expect(spy).toHaveBeenCalledTimes(1);

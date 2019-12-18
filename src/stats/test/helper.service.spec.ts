@@ -1,6 +1,6 @@
-import { HelperService } from '../helper.service';
-import { TestingModule, Test } from '@nestjs/testing';
+import { Test, TestingModule } from '@nestjs/testing';
 import { FileModule, FileService } from '../../file';
+import { HelperService } from '../helper.service';
 
 describe('StatsHelperService', () => {
 	let module: TestingModule;
@@ -16,8 +16,8 @@ describe('StatsHelperService', () => {
 		fileSvc = module.get<FileService>(FileService);
 	});
 
-	afterEach(() => {
-		module.close();
+	afterEach(async () => {
+		await module.close();
 	});
 
 	it('should parse passwd with no filter', async () => {

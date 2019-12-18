@@ -1,24 +1,38 @@
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { writeFileSync } from 'fs-extra';
 import { FileModule, FileService } from '../../file';
-import { Job, JobModule, JobSchema, JobService } from '../../job';
-import { StatsService } from '../stats.service';
+import {
+	Job,
+	JobDataService,
+	JobModule,
+	JobSchema,
+	JobService,
+} from '../../job';
 import { HelperService } from '../helper.service';
+import { StatsService } from '../stats.service';
 
 describe('StatsService', () => {
+	let module: TestingModule;
 	let service: StatsService;
+
+	let rootBak: string;
+	let johnBak: string;
+
 	let jobSvc: JobService;
 	let fileSvc: FileService;
-	let envBak: string;
-	let module: TestingModule;
+	let jobDataSvc: JobDataService;
 
 	beforeAll(() => {
-		envBak = process.env.JTR_ROOT;
+		rootBak = process.env.JTR_ROOT;
 		process.env.JTR_ROOT = '/tmp/';
+		johnBak = process.env.JTR_EXECUTABLE;
+		process.env.JTR_EXECUTABLE = '/tmp/john';
 	});
 
 	afterAll(() => {
-		process.env.JTR_ROOT = envBak;
+		process.env.JTR_ROOT = rootBak;
+		process.env.JTR_EXECUTABLE = johnBak;
 	});
 
 	beforeEach(async () => {
@@ -39,6 +53,7 @@ describe('StatsService', () => {
 
 		service = module.get<StatsService>(StatsService);
 		jobSvc = module.get<JobService>(JobService);
+		jobDataSvc = module.get<JobDataService>(JobDataService);
 		fileSvc = module.get<FileService>(FileService);
 	});
 
@@ -52,20 +67,16 @@ describe('StatsService', () => {
 
 	it('should return stats for admins cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
-		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.append(
+		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		writeFileSync(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);
-		let job = {
-			name: 'test',
-		} as Job;
 
-		job = await jobSvc.create(job);
+		const job = await jobSvc.create({} as Job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
-		await jobSvc.update(job);
-		const stats = await service.getAdminsCracked(job._id);
-		expect(stats).toEqual({
+		await jobDataSvc.updateOne(job);
+		expect(await service.getAdminsCracked(job._id)).toEqual({
 			total: 3,
 			cracked: 1,
 			percentage: 33,
@@ -74,20 +85,15 @@ describe('StatsService', () => {
 
 	it('should return stats for all users cracked', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
-		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.append(
+		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		writeFileSync(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);
-		let job = {
-			name: 'test',
-		} as Job;
-
-		job = await jobSvc.create(job);
+		const job = await jobSvc.create({} as Job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
-		await jobSvc.update(job);
-		const stats = await service.getAllCracked(job._id);
-		expect(stats).toEqual({
+		await jobDataSvc.updateOne(job);
+		expect(await service.getAllCracked(job._id)).toEqual({
 			total: 4,
 			cracked: 1,
 			percentage: 25,
@@ -96,18 +102,14 @@ describe('StatsService', () => {
 
 	it('should return a comma seperated string of stats', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
-		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.append(
+		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		writeFileSync(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);
-		let job = {
-			name: 'test',
-		} as Job;
-
-		job = await jobSvc.create(job);
+		const job = await jobSvc.create({} as Job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
-		await jobSvc.update(job);
+		await jobDataSvc.updateOne(job);
 		const stats = await service.exportStats(job._id);
 		expect(stats).toBe(
 			'Name,Total,Cracked,Percentage,Top 10\n' +
@@ -117,13 +119,9 @@ describe('StatsService', () => {
 	});
 
 	it('should return 0 if pot file is empty', async () => {
-		let job = {
-			name: 'test',
-		} as Job;
-
-		job = await jobSvc.create(job);
+		const job = await jobSvc.create({} as Job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
-		await jobSvc.update(job);
+		await jobDataSvc.updateOne(job);
 		const potFile = 'src/stats/test/files/john.empty.pot';
 		const stats = await service.getPercentageCracked(job._id, potFile);
 		expect(stats).toEqual({ total: 4, cracked: 0, percentage: 0 });
@@ -131,36 +129,28 @@ describe('StatsService', () => {
 
 	it('should return correct frequency count', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
-		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.append(
+		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		writeFileSync(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);
-		let job = {
-			name: 'test',
-		} as Job;
-
-		job = await jobSvc.create(job);
+		const job = await jobSvc.create({} as Job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
-		await jobSvc.update(job);
+		await jobDataSvc.updateOne(job);
 		const count = await service.getFreqCount(job._id, '#Password');
 		expect(count).toBe(1);
 	});
 
 	it('should return correct top 10 stats', async () => {
 		const potFile = 'src/stats/test/files/john.pot';
-		await fileSvc.mkdir(process.env.JTR_ROOT + 'JohnTheRipper/run');
-		await fileSvc.append(
+		fileSvc.mkdirSync(process.env.JTR_ROOT + 'JohnTheRipper/run');
+		writeFileSync(
 			process.env.JTR_ROOT + 'JohnTheRipper/run/john.pot',
 			(await fileSvc.read(potFile)).toString(),
 		);
-		let job = {
-			name: 'test',
-		} as Job;
-
-		job = await jobSvc.create(job);
+		const job = await jobSvc.create({} as Job);
 		job.directory = process.cwd() + '/src/stats/test/files/';
-		await jobSvc.update(job);
+		await jobDataSvc.updateOne(job);
 		const result = await service.getTopTenStats(job._id);
 		expect(result).toEqual([{ password: '#Password', count: 1 }]);
 	});

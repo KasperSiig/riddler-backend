@@ -1,27 +1,29 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
 import { ChildProcess, spawn } from 'child_process';
-import { DocumentQuery, Model, Query, Types } from 'mongoose';
+import { Types } from 'mongoose';
 import { FileService } from '../file';
-import { STATUS } from './enums/status.enum';
-import { Job } from './interfaces/job.interface';
 import { WordlistService } from '../wordlist';
+import { STATUS } from './enums/status.enum';
+import { HelperService } from './helper.service';
+import { Job } from './interfaces/job.interface';
+import { JobDataService } from './job-data.service';
 
 @Injectable()
 export class JobService {
-	validFormats = ['nt'];
 	children: Map<string, ChildProcess> = new Map();
 
 	constructor(
 		private fileSvc: FileService,
 		private wordlistSvc: WordlistService,
-		@InjectModel('Job') public readonly model: Model<Job>,
+		private helper: HelperService,
+		private dataSvc: JobDataService,
 	) {}
 
 	/**
 	 * Starts a new job
 	 *
 	 * @param job Job to be started
+	 * @param file File containing passwords
 	 * @returns Array containing the child process spawned, and the job itself
 	 */
 	async startNew(job: Job, file: any): Promise<ChildProcess> {
@@ -30,23 +32,11 @@ export class JobService {
 		job.time = Date.now();
 		job.rule = job.rule || 'None';
 
-		// Validation
-		if (!job.name) throw new BadRequestException('Name required', job.name);
-		if (await this.getJobByName(job.name))
-			throw new BadRequestException(
-				'Job with that name already exists',
-				job.name,
-			);
-		if (!job.wordlist.path.match(/^[a-zA-Z0-9\/\.]+$/))
-			throw new BadRequestException('Wordlist not valid', job.wordlist.path);
-		if (!this.validFormats.includes(job.format))
-			throw new BadRequestException('Format not valid', job.format);
-		this.fileSvc.validateOne(job.wordlist.path);
-		if (!file) throw new BadRequestException('No file chosen', file);
+		await this.helper.validateJob(job, file);
 
 		const jobSaved = await this.create(job);
 		const passwdFile = jobSaved.directory + 'passwd.txt';
-		this.fileSvc.mkdir(jobSaved.directory);
+		this.fileSvc.mkdirSync(jobSaved.directory);
 		await this.fileSvc.append(passwdFile, file.buffer.toString());
 
 		const command = [
@@ -60,7 +50,7 @@ export class JobService {
 		this.startListeners(jobSaved, child);
 
 		jobSaved.status = STATUS.STARTED;
-		this.update(jobSaved).then(() => {});
+		this.dataSvc.updateOne(jobSaved).then(() => {});
 		return child;
 	}
 
@@ -68,6 +58,7 @@ export class JobService {
 	 * Starts given listeners
 	 *
 	 * @param job Job to listen on
+	 * @param child ChildProcess to listen on
 	 */
 	startListeners(job: Job, child: ChildProcess): void {
 		child.stdout.on('data', data => {
@@ -80,20 +71,10 @@ export class JobService {
 
 		child.on('exit', () => {
 			job.status = STATUS.FINISHED;
-			this.update(job).then(() => {});
+			this.dataSvc.updateOne(job).then(() => {});
 		});
-		this.children.set(job._id, child);
-	}
 
-	/**
-	 * Updates a current job in the database
-	 *
-	 * @param job Job to be saved
-	 */
-	update(job: Job): Query<Job> {
-		return this.model.findOneAndUpdate({ _id: job._id }, job, {
-			new: true,
-		});
+		this.children.set(job._id, child);
 	}
 
 	/**
@@ -104,44 +85,6 @@ export class JobService {
 	create(job: Job): Promise<Job> {
 		job._id = new Types.ObjectId().toString();
 		job.directory = process.env.JTR_ROOT + 'jobs/' + job._id + '/';
-		return this.model
-			.findOneAndUpdate({ _id: job._id }, job, {
-				upsert: true,
-				new: true,
-			})
-			.exec();
-	}
-
-	/**
-	 * Gets all jobs
-	 */
-	getAll() {
-		return this.model.find({});
-	}
-
-	/**
-	 * Gets jobs via Id
-	 * @param id ID to find job by
-	 */
-	getJob(id: string) {
-		return this.model.findById(id);
-	}
-
-	/**
-	 * Finds job by a given status
-	 *
-	 * @param status Status to find Job by
-	 */
-	getByStatus(status: STATUS): DocumentQuery<Job[], Job, {}> {
-		return this.model.find({ status });
-	}
-
-	/**
-	 * Finds job by a given name
-	 *
-	 * @param name Name to find Job by
-	 */
-	getJobByName(name: string) {
-		return this.model.findOne({ name });
+		return this.dataSvc.findOneAndUpdate(job).exec();
 	}
 }

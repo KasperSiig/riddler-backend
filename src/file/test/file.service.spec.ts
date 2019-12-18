@@ -1,9 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FileService } from '../file.service';
-import * as fs from 'fs-extra';
-import { of } from 'rxjs';
-import { FileNotFoundException } from '../../exceptions';
 import { existsSync } from 'fs';
+import * as fs from 'fs-extra';
+import { FileService } from '../file.service';
 
 describe('FileService', () => {
 	let service: FileService;
@@ -34,9 +32,9 @@ describe('FileService', () => {
 		expect(spy).toHaveBeenCalled();
 	});
 
-	it('should throw error if file does not exist', async () => {
+	it('should throw error if file does not exist', () => {
 		try {
-			await service.validateOne('/opt/nofile');
+			service.validateOne('/opt/nofile');
 		} catch (err) {
 			expect(err.toString()).toBe('Error: File /opt/nofile Not Found');
 		}
@@ -44,14 +42,16 @@ describe('FileService', () => {
 
 	it('should create new directory', () => {
 		const dir = '/tmp/' + Math.ceil(Math.random() * 1000000000000000);
-		service.mkdir(dir);
+		service.mkdirSync(dir);
+
 		expect(existsSync(dir)).toBeTruthy();
 	});
 
 	it('should not create new directory', () => {
 		const dir = '/tmp/' + Math.ceil(Math.random() * 1000000000000000);
-		service.mkdir(dir);
-		service.mkdir(dir);
+		service.mkdirSync(dir);
+		service.mkdirSync(dir);
+
 		expect(existsSync(dir)).toBeTruthy();
 	});
 });
