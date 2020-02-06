@@ -24,7 +24,7 @@
 		"@nestjs/core": "^6.10.11",
 		"@nestjs/common": "^6.10.11",
 		"@nestjs/mongoose": "^6.1.2",
-		"@nestjs/platform-express": "^6.10.11",
+		"@nestjs/platform-express": "^6.11.6",
 		"@types/fs-extra": "^8.0.1",
 		"@types/mongoose": "^5.5.34",
 		"@types/uuid": "^3.4.6",
